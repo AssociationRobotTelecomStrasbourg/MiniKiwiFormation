@@ -1,0 +1,3 @@
+[submodule "lib/CustomPID"]
+	path = lib/CustomPID
+	url = https://github.com/AssociationRobotTelecomStrasbourg/CustomPID.git

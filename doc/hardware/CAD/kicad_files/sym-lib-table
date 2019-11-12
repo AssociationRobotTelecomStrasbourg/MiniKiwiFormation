@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name MiniKiwiLib)(type Legacy)(uri /home/yyunko/Documents/MiniKiwiHardware/MiniKiwiLib.lib)(options "")(descr ""))
+)

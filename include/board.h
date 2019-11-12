@@ -14,6 +14,14 @@
 
 // Motor drivers inputs
 // If 12V drive is used on 6V motors, limit PWM value to 128-140, current is internally limited for protection in case of mistake.
+	// IN1  IN2  OUT1  OUT2  FUNC
+	//  0    1    L     H     Reverse
+	//  1    0    H     L     Forward
+	//  0    1    H/L   L     Chop reverse, mixed decay
+	//  1    0    L     H/L   Chop forward, mixed decay
+	//  1    1    L     L     Brake, slow decay
+	//  0    0    Z     Z     Coast, enters standby mode after 1ms
+
 #define IN1_1 5
 #define IN2_1 6
 

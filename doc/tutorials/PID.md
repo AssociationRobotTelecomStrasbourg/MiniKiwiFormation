@@ -20,26 +20,20 @@
 
 ## La carte miniKiwi
 
-Pendant toute cette formation, vous ne travaillerez plus avec la carte Arduino Nano (celle utilisée lors de formations de base Arduino) mais avec le _miniKiwi_.
-
+Pendant toute cette formation, vous ne travaillerez plus avec la carte Arduino Nano (celle utilisée lors de formations de base Arduino) mais avec le _miniKiwi_ et la _Teensy_.
 Le _miniKiwi_ est un _shield_ (une carte fille) pour la carte [Teensy 3.2](https://www.pjrc.com/teensy/teensy31.html).
 
 La carte Teensy est une carte du même type que l'Arduino nano utilisé lors des tutoriels de base. On la code en C/C++ et on y upload ce code qui va effectuer des actions avec les différentes _entrées/sorties_ exactement comme pour l'Arduino nano.
 
 Le shield _miniKiwi_ ajoute de nombreuses fonctionnalités à la Teensy, en branchant sur ses entrées/sorties différents composants.
 
-### Aperçu des fonctionnalités
+<img src="../resources/Kiwi_PID.jpg" width="500"/><br>
 
-![kiwi_explication](../resources/minikiwi_board.jpg)
+Aujourd'hui on va travailler avec ces parties de la carte:
 
-1. Branchement batterie (Batterie 12V)
-2. Sortie moteurs courant continu et encodeurs
-3. Connection carte Wifi (ESP01) et Buzzer
-4. Sortie pompe pour ventouse
-5. Carte Teensy 3.2 (connecteur USB orienté vers le haut)
-6. Sorties Servomoteurs (x3)
-7. Sorties Lidar
-8. Entrée capteur suivi de ligne
+1. Connecteur batterie (attention au sens, le + est indiqué)
+2. Connecteurs moteurs
+3. Teensy 3.2
 
 ### Utilisation de la Carte
 
@@ -57,10 +51,74 @@ Le code utilisé est exactement le même que pour les formations Arduino, le seu
 Sur la carte, on peut lire le nom des pins, et leur fonctionnalités juste à côté de la Teensy.
 
 
-<img src="../resources/silkscreen_teensy.png" alt="drawing" width="250"/>
+<img src="../resources/silkscreen_teensy.png" width="250"/><br>
 
 
 Les pins d'entrées sorties qui nous intéressent aujourd'hui sont :
 
-- Les pins INx qui sont branchés sur les entrées des _drivers de moteurs_ (circuits intégrés qui délivrent la puissance aux moteurs).
-- Les pins A et B, qui sont les entrées de encodeurs présents sur les moteurs.
+- Les pins `INx` qui sont branchés sur les entrées des _drivers de moteurs_ (circuits intégrés qui délivrent la puissance aux moteurs).
+- Les pins `A` et `B`, qui sont les entrées de encodeurs présents sur les moteurs.<br>
+
+## Prise en main des Entrée/Sorties numériques de la carte
+
+Les signaux numériques sont des 0 et 1 représentés par GND (0V) et VCC (3.3V) pour la carte Teensy.
+Cela contraste avec la logique 0-5V de la carte Arduino Nano utilisée pendant la formation de base.
+
+Le fichier `board.h` donne les noms et fonctionnalités de chaques pins, ainsi il n'est pas nécessaire d'utiliser des numéros comme avec l'Arduino Nano.
+
+Par exemple `LED_DEBUG` permet d'accéder à la pin de la LED rouge et `LED_TEENSY` permet d'accéder à la pin de la LED orange sur la Teensy.
+
+```c++
+
+#include <Arduino.h>
+#include "board.h" // Contient les noms de pins de la Teensy
+
+void setup() {
+	//Déclaration en output des deux leds du miniKiwi
+	pinMode(LED_DEBUG, OUTPUT);
+	pinMode(LED_TEENSY, OUTPUT);
+}
+
+void loop() {
+	//Ce programme fait clignoter les deux LED de façon alternée
+	digitalWrite(LED_DEBUG, HIGH);
+	delay(300);
+	digitalWrite(LED_TEENSY, HIGH);
+	digitalWrite(LED_DEBUG, LOW);
+	delay(300);
+	digitalWrite(LED_TEENSY, LOW);
+
+}
+```
+
+# Prise en main des moteurs courant continu
+
+## Le moteur courant continu
+
+Le miniKiwi dispose de deux sorties pour contrôler deux moteurs à courant continu.
+
+Le moteur à courant continu est contrôlé en tension. Il suffit d'y appliquer un différence de potentiel pour le faire tourner, la tension étant proportionnelle à la vitesse de rotation du moteur.
+
+Les moteurs utilisés avec le miniKiwi sont des [Micromoteurs Pololu](https://www.pololu.com/product/3041), ce sont des moteurs 12V, 330 tours/minute.
+
+Ainsi, quand on les alimente avec une tension fixe, 12V, ils tournent à 330 tours par minute. Quand la tension baisse, la vitesse baisse aussi.
+
+## Le driver de moteurs
+
+Pour contrôler un moteur, il faut beaucoup plus de tension et de courant que ne peuvent fournir les pins de la Teensy.
+
+On utilise alors un _driver_, c'est un circuit dit "de puissance", il est capable de travailler avec une tension de 12V, et des courants jusqu'à 1A (comparé au 3.3V, et aux 20mA des entrées/sorties de la teensy).
+
+Le circuit de puissance peut faire varier la tension issue de la batterie entre 0 et 12V.
+
+Pour contrôler les drivers du miniKiwi, il faut utiliser les pins :
+
+- `IN1_1` et `IN2_1` pour la sortie moteur 1, et `IN1_2` et `IN2_2` pour la sortie moteur 2.
+
+Il faut juste les déclarer en `OUTPUT`, et les contrôler avec les fonctions `digitalWrite` et/ou `analogWrite` comme toute autre sortie sur Arduino.
+
+IN_1 | IN_2 | Fonction réalisée
+---- | ---- | ------
+`LOW`| `HIGH` | Marche avant
+`HIGH`| `LOW` | Marche arrière
+`LOW` | `LOW` | Arrêt

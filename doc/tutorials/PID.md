@@ -141,12 +141,67 @@ void loop() {
 	digitalWrite(IN1_1, LOW); //Ligne 1 du tableau
 	digitalWrite(IN2_1, HIGH);
 	delay(1000);
+
 	digitalWrite(IN1_1, LOW); //Ligne 3
 	digitalWrite(IN2_1, LOW);
 	delay(1000);
+
 	digitalWrite(IN1_1, HIGH); //Ligne 2
+	digitalWrite(IN2_1, LOW);
+	delay(1000);
+
+	digitalWrite(IN1_1, LOW); //Ligne 3
 	digitalWrite(IN2_1, LOW);
 	delay(1000);
 
 }
 ```
+
+### Challenges
+
+- Faire un programme qui fait faire coucou au moteur
+- Faire déplacer le moteur de 1 tour exactement
+- Faire déplacer le moteur de 2 tours exactement
+
+## Faire varier la vitesse du moteur
+
+Pour faire varier la vitesse du moteur, il suffit d'utiliser la logique précédente avec la fonction `analogWrite` au lieu de la fonction `digitalWrite`.
+
+La fonction `analogWrite` va faire varier la tension de 0 à 12V, pour des valeurs de 0 à 255.
+
+```c++
+
+#include "board.h" // Contient les noms de pins de la Teensy
+
+void setup() {
+	//Déclaration en output des deux entrées du driver de moteur 1
+	pinMode(IN1_1, OUTPUT);
+	pinMode(IN2_1, OUTPUT);
+}
+
+void loop() {
+	//fait avancer le moteur à une vitesse progressivement plus élevé puis l'arrête, et pause pendant 1 seconde.
+
+	digitalWrite(IN1_1, LOW);
+
+	for (int k = 0; k<= 255; k++){
+		analogWrite(IN2_1, k);
+		delay(50);
+	}
+
+	digitalWrite(IN1_1, LOW); //Ligne 3
+	digitalWrite(IN2_1, LOW);
+	delay(1000);
+
+}
+```
+
+### Challenges
+
+- Faire accélérer le moteur plus vite
+- Faire un vitesse max plus faible
+- Faire accélerer puis décélerer le moteur
+
+## Prise en main des encodeurs
+
+Les moteurs pololu utilisés possèdent aussi des encodeurs qui permettent de récupérer la position des moteurs, pour les asservir.

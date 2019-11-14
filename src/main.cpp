@@ -8,15 +8,17 @@ void setup() {
 }
 
 void loop() {
-	//Ce programme fait tourner le moteur dans un sens, l'arrête, puis le fait tourner dans le sens inverse
+	//fait avancer le moteur à une vitesse progressivement plus élevé puis l'arrête, et pause pendant 1 seconde.
 
-	digitalWrite(IN1_1, LOW); //Ligne 1 du tableau
-	digitalWrite(IN2_1, HIGH);
-	delay(1000);
+	digitalWrite(IN1_1, LOW);
+
+	for (int k = 0; k<= 250; k++){
+		analogWrite(IN2_1, k);
+		delay(50);
+	}
+
 	digitalWrite(IN1_1, LOW); //Ligne 3
 	digitalWrite(IN2_1, LOW);
 	delay(1000);
-	digitalWrite(IN1_1, HIGH); //Ligne 2
-	digitalWrite(IN2_1, LOW);
-	delay(1000);
+
 }

@@ -22,11 +22,11 @@
 	//  1    1    L     L     Brake, slow decay
 	//  0    0    Z     Z     Coast, enters standby mode after 1ms
 
-#define IN1_1 5
-#define IN2_1 6
+#define IN1_2 5
+#define IN2_2 6
 
-#define IN1_2 9
-#define IN2_2 10
+#define IN1_1 9
+#define IN2_1 10
 
 // Motor Encoder input, typical value is 100.37*12 = 1244.4 counts per turn
 #define A1 7

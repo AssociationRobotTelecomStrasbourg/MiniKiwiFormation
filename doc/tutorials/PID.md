@@ -3,11 +3,11 @@
 ## Information à rajouter
 
 - [ ] Explication générale du PID
-- [ ] Explication générale des encodeurs
-- [ ] petite présentation du miniKiwi
+- [x] Explication générale des encodeurs
+- [x] petite présentation du miniKiwi
 - [ ] régulations en vitesse et Position
 - [ ] problèmes de rampes de vitesse
-- [ ] considérations hardware, moteur DC
+- [x] considérations hardware, moteur DC
 
 
 ## Déroulement de la Formation
@@ -41,6 +41,7 @@ Aujourd'hui on va travailler avec ces parties de la carte:
 - Pour uploader du code, la carte doit être allumée.
 - **Attention au branchement des moteurs!** les indications sur la carte sont fausses, il faut brancher le moteur fil noir sur la pin **M1**.
 - Une fois la carte allumée, la LED verte s'allume.
+- **Attention! Ne pas bloquer le moteur lorsqu'il bouge**, cela peut détruire les engrenages, ou le faire surchauffer!
 
 ### Spécificités de code
 
@@ -205,3 +206,69 @@ void loop() {
 ## Prise en main des encodeurs
 
 Les moteurs pololu utilisés possèdent aussi des encodeurs qui permettent de récupérer la position des moteurs, pour les asservir.
+
+Les encodeurs utilisés la plupart du temps sont dit _"encodeurs à quadrature de phase"_.
+
+_Il n'est pas important pour la formation de comprendre leur principe de fonctionnement_, mais vous pouvez cliquer [ici](https://www.pjrc.com/teensy/td_libs_Encoder.html) pour des explications sur la librairie que nous allons utiliser.
+
+```c++
+
+#include <Encoder.h> // Inclue la librairie encodeur
+#include "board.h" // Contient les noms de pins de la Teensy
+
+Encoder enc(A1, B1); //Déclaration des pins de l'encodeur
+int32_t pos = 0; // variable qui prendra la valeur de la position du moteur
+
+void setup() {
+	Serial.begin(9600);
+	Serial.println("Starting Test");
+	delay(3000); //On laisse le temps à la liaison série de s'établir
+}
+
+void loop() {
+	pos = enc.read(); //On lit la valeur de la position et on la stocke dans pos
+	Serial.println(pos); //On revoie la valeur dans le moniteur série
+	delay(100);
+}
+```
+
+Noter quel est le sens de rotation qui fait augmenter la valeur de position.
+
+### Challenges
+
+- On sait que le moteur a une réduction 100:1, déterminer le nombre de pas par tours de l'encodeur et la précision en degrée.
+- Utiliser la fonction [`map(value, fromLow, fromHigh, toLow, toHigh)`](https://www.arduino.cc/reference/en/language/functions/math/map/) pour convertir et afficher la valeur `pos` en degrées.
+
+## Utiliser encodeurs et moteurs en même temps
+
+Le code suivant fait tourner le moteur à sa vitesse max, et affiche sa vitesse en pas par seconde.
+
+```c++
+
+#include <Encoder.h> // Inclue la librairie encodeur
+#include "board.h" // Contient les noms de pins de la Teensy
+
+Encoder enc(A1, B1); //Déclaration des pins de l'encodeur
+int32_t pos = 0; // variable qui prendra la valeur de la position du moteur
+
+void setup() {
+	Serial.begin(9600);
+	Serial.println("Starting Test");
+	delay(3000); //On laisse le temps à la liaison série de s'établir
+}
+
+void loop() {
+	pos = enc.read(); //On lit la valeur de la position et on la stocke dans pos
+	Serial.println(pos); //On revoie la valeur dans le moniteur série
+	delay(100);
+}
+```
+
+## Régulation PID
+
+A ce stade, vous avez du remarquer que même si la vitesse du moteur est proportionnelle à la valeur de tension a ses bornes, il est impossible de le contrôler précisément.
+
+Vous disposez de :
+
+- La librairie encodeur et la capacité à calculer l'angle du moteurs.
+- La librairie de contrôle de vitesse/direction moteur introduite précédemment.

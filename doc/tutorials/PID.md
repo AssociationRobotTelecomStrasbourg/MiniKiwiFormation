@@ -243,6 +243,8 @@ Noter quel est le sens de rotation qui fait augmenter la valeur de position.
 
 Le code suivant fait tourner le moteur à sa vitesse max, et affiche sa vitesse en pas par seconde.
 
+Il utilise une librairie simple, dont le fonctionnement est détaillé en dessous de l'exemple.
+
 ```c++
 
 #include <Encoder.h> // Inclue la librairie encodeur

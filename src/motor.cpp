@@ -6,11 +6,11 @@ _pin1(pin1), _pin2(pin2) , _pwm(0) {
     analogWrite(_pin2, 0);
 }
 
-int16_t Motor::get_pwm() const {
+int16_t Motor::getPwm() const {
     return _pwm;
 }
 
-void Motor::set_pwm(const int16_t pwm) {
+void Motor::setPwm(const int16_t pwm) {
     _pwm = constrain(pwm, -255, 255);
     if (pwm > 0) {
         analogWrite(_pin1, 0);

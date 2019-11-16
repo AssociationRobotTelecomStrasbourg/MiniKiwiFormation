@@ -10,10 +10,10 @@ public:
   Motor(const uint8_t pin1, const uint8_t pin2);
 
   // Get the pwm sent to the H bridge
-  int16_t get_pwm() const;
+  int16_t getPwm() const;
 
   // Set the pwm sent to the H bridge
-  void set_pwm(const int16_t pwm);
+  void setPwm(const int16_t pwm);
 
 private:
   const uint8_t _pin1, _pin2;

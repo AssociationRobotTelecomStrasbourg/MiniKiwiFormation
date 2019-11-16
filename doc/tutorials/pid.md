@@ -270,7 +270,7 @@ void setup() {
 	delay(2000);
 
 	while(!Serial.available()); // Appuyer sur une touche pour continuer
-	motor.set_pwm(127);
+	motor.setPwm(127);
 }
 
 void loop() {
@@ -283,8 +283,8 @@ void loop() {
 Ce code utilise une librairie qu'on vous a codé pour vous simplifier la vie, voici ses fonctions :
 
 - `Motor(const uint8_t pin1, const uint8_t pin2);` Cette fonction initialise les pins du moteur.
-- `void set_pwm(const int16_t pwm);` Cette fonction envoie une consigne de PWM (tension) au moteur, la valeur `pwm` varie de _-255 à 255_.
-- `int16_t get_pwm() const;` Permet de récupérer la valeur de _pwm_ qui a été envoyée au moteur.
+- `void setPwm(const int16_t pwm);` Cette fonction envoie une consigne de PWM (tension) au moteur, la valeur `pwm` varie de _-255 à 255_.
+- `int16_t getPwm() const;` Permet de récupérer la valeur de _pwm_ qui a été envoyée au moteur.
 
 ## challenges
 
@@ -334,7 +334,7 @@ void setup() {
 void loop() {
 	pid.setInput(encoder.read());
 	pid.compute();
-	motor.set_pwm(int16_t(pid.getOutput()));
+	motor.setPwm(int16_t(pid.getOutput()));
 
 	if (millis() - time > display_time) {
 		time += display_time;

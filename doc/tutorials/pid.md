@@ -10,9 +10,6 @@
 - [x] considérations hardware, moteur DC
 
 
-## Déroulement de la Formation
-
-
 ## Prérequis
 
 - Codage C/C++ de base
@@ -70,6 +67,7 @@ Le fichier `board.h` donne les noms et fonctionnalités de chaques pins, ainsi i
 Par exemple `LED_DEBUG` permet d'accéder à la pin de la LED rouge et `LED_TEENSY` permet d'accéder à la pin de la LED orange sur la Teensy.
 
 Pour utiliser ces noms il faut inclure le fichier `board.h`.
+Ce fichier est situé dans le dossier `/include`, on y trouve toutes les fonctionnalités de la carte, et les pins pour y accéder.
 
 ```c++
 
@@ -111,8 +109,6 @@ Pour contrôler un moteur, il faut beaucoup plus de tension et de courant que ne
 
 On utilise alors un _driver_, c'est un circuit dit "de puissance", il est capable de travailler avec une tension de 12V, et des courants jusqu'à 1A (comparé au 3.3V, et aux 20mA des entrées/sorties de la teensy).
 
-Le circuit de puissance peut faire varier la tension issue de la batterie entre 0 et 12V.
-
 Pour contrôler les drivers du miniKiwi, il faut utiliser les pins :
 
 - `IN1_1` et `IN2_1` pour la sortie moteur 1
@@ -122,11 +118,18 @@ Il faut juste les déclarer en `OUTPUT`, et les contrôler avec les fonctions `d
 
 La logique de contrôle du moteur est décrite dans le tableau ci dessous:
 
-IN1 | IN2 | Fonction réalisée
----- | ---- | ------
-`LOW`| `HIGH` | Marche avant
-`HIGH`| `LOW` | Marche arrière
-`LOW` | `LOW` | Arrêt
+`IN1` et `IN2` sont les entrées logiques du drivers, `OUT1` et `OUT2` sont les sorties qui sont branchées de chaque côté du moteur.
+
+IN1 | IN2 | OUT1 | OUT2 | Fonction réalisée
+---- | ---- | ---- | ---- | ---- |
+`0`| `1`|`0V`|`12V`| Marche avant
+`1`| `0`|`12V`|`0V`| Marche arrière
+`0` | `0`|`Z`|`Z`| Arrêt
+
+_Note_ : L'état `Z` correspond à une sortie débranchée du moteur (comme un interrupteur ouvert).
+
+Le driver sert d'interface entre la teensy et le moteur en fournissant un circuit logique (les entrées `IN1` et `IN2`) qui contrôle un [Pont en H](https://fr.wikipedia.org/wiki/Pont_en_H) branché sur les sorties `OUT1` et `OUT2`.
+
 
 ```c++
 
@@ -165,6 +168,8 @@ void loop() {
 - Faire un programme qui fait faire coucou au moteur
 - Faire déplacer le moteur de 1 tour exactement
 - Faire déplacer le moteur de 2 tours exactement
+- Remarquer qu'il est facile de ralentir le moteur avec sa main (le mettre à une vitesse basse pour cela)
+
 
 ## Faire varier la vitesse du moteur
 
@@ -183,7 +188,7 @@ void setup() {
 }
 
 void loop() {
-	//fait avancer le moteur à une vitesse progressivement plus élevé puis l'arrête, et pause pendant 1 seconde.
+	//fait avancer le moteur à une vitesse progressivement plus élevée puis l'arrête, et pause pendant 1 seconde.
 
 	digitalWrite(IN1_1, LOW);
 
@@ -222,9 +227,11 @@ Encoder encoder(A_1, B_1);
 int32_t position = 0;
 
 void setup() {
+	// On initialise la liaison série et on attend qu'elle s'établisse
 	Serial.begin(9600);
-	Serial.println("Starting Test");
-	delay(3000);
+	delay(2000);
+
+	while(!Serial.available()); // Appuyer sur une touche pour continuer
 }
 
 void loop() {
@@ -234,19 +241,17 @@ void loop() {
 }
 
 ```
-
-Noter quel est le sens de rotation qui fait augmenter la valeur de position.
+Vous pouvez faire tourner le moteur à la main pour voir la position varier.
+- Noter quel est le sens de rotation qui fait augmenter la valeur de position.
 
 ### Challenges
 
 - On sait que le moteur a une réduction 100:1, déterminer le nombre de pas par tours de l'encodeur et la précision en degrée.
-- Utiliser la fonction [`map(value, fromLow, fromHigh, toLow, toHigh)`](https://www.arduino.cc/reference/en/language/functions/math/map/) pour convertir et afficher la valeur `position` en tours.
+- Convertir et afficher la valeur `position` en tours ou en degrées.
 
 ## Utiliser encodeurs et moteurs en même temps
 
-Le code suivant fait tourner le moteur à sa vitesse max, et affiche sa vitesse en pas par seconde.
-
-Il utilise une librairie simple, dont le fonctionnement est détaillé en dessous de l'exemple.
+Le code suivant fait tourner le moteur tout en retournant sa valeur de position en pas dans le moniteur série.
 
 ```c++
 
@@ -260,8 +265,11 @@ int32_t position = 0;
 Motor motor(IN1_1, IN2_1);
 
 void setup() {
+	// On initialise la liaison série et on attend qu'elle s'établisse
 	Serial.begin(9600);
-	delay(3000);
+	delay(2000);
+
+	while(!Serial.available()); // Appuyer sur une touche pour continuer
 	motor.set_pwm(127);
 }
 
@@ -272,9 +280,16 @@ void loop() {
 }
 ```
 
+Ce code utilise une librairie qu'on vous a codé pour vous simplifier la vie, voici ses fonctions :
+
+- `Motor(const uint8_t pin1, const uint8_t pin2);` Cette fonction initialise les pins du moteur.
+- `void set_pwm(const int16_t pwm);` Cette fonction envoie une consigne de PWM (tension) au moteur, la valeur `pwm` varie de _-255 à 255_.
+- `int16_t get_pwm() const;` Permet de récupérer la valeur de _pwm_ qui a été envoyée au moteur.
+
 ## challenges
 
-- Afficher la vitesse du moteur en tours par seconde
+- Afficher la vitesse du moteur en tours par seconde.
+- Ecrire un code qui donne en consigne de pwm au moteur la différence entre sa vitesse actuelle, et une valeur de vitesse stockée dans une variable, multiplier cette différence par une variable `kp`.
 
 ## Régulation PID
 

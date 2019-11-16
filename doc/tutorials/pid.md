@@ -3,10 +3,20 @@
 ## Information à rajouter
 
 - [ ] Explication générale du PID
-- [x] Explication générale des encodeurs
-- [x] petite présentation du miniKiwi
+	- [ ] Tableau
+	- [ ] Windup
+	- [ ] Réglage
+	- [ ] Période d'échantillonnage effet
+- [ ] Préciser \_1
+- [ ] Enlever "faire coucou"
+- [ ] Remplacer ne pas toucher le moteur par ne pas bloquer
+- [ ] Retirer challenge kp
+- [ ] Explication serial monitor
+- [ ] réduction + pas par tour réduit ou non réduit
 - [ ] régulations en vitesse et Position
 - [ ] problèmes de rampes de vitesse
+- [x] petite présentation du miniKiwi
+- [x] Explication générale des encodeurs
 - [x] considérations hardware, moteur DC
 
 
@@ -14,6 +24,9 @@
 
 - Codage C/C++ de base
 - Formation Arduino RTS
+
+## Déroulement
+- Prévoir 45 minute pour régler les pid en vitesse et en position
 
 ## La carte miniKiwi
 
@@ -303,46 +316,44 @@ Vous disposez de :
 ```c++
 #include <Arduino.h>
 #include <Encoder.h>
-#include <motor.h>
-#include <pid.h>
-#include "board.h" // Contient les noms de pins de la Teensy
+#include "board.h"
+#include "motor.h"
+#include "PIDv2.h"
 
-uint32_t sample_time = 10; // Période d'échantillonnage
-uint32_t display_time = 100; // Période d'affichage sur la liaison série
-uint32_t time_sample, time_display; // Temps écoulé depuis la dernière période
+Motor motor(IN1_1, IN2_1);
+Encoder encoder(A_1, B_1);
 
-Encoder encoder(A_1, B_1); // Initialise encoder
-Motor motor(IN1_1, IN2_1); // Initialise motor
-PID pid(2, 0.3, 5, sample_time); // Initialise pid pour un contrôle en position
+const uint32_t sample_time = 10;
+PID pid(2, 0.2, 5, sample_time);
 
-int32_t position = 1200;
+uint32_t time;
+const uint32_t display_time = 30;
 
 void setup() {
-	Serial.begin(9600); // Initialise le port Serial
-	while(!Serial); // Attend tant que le port Serial soit prêt
-	Serial.println("Position");
+	Serial.begin(9600);
+	delay(3000);
 
-	pid.setMode(true); // Active le PID
-	pid.setReference(position); // Règle la consigne de position du PID
+	pid.setOutputLimits(-255, 255);
 
-	time_sample = millis();
-	time_display = millis();
+	pid.setInput(encoder.read());
+	pid.setReference(1200.0);
+
+	pid.setMode(AUTOMATIC);
+
+	time = millis();
+	while(!Serial.available());
 }
 
 void loop() {
-	// Asservi le moteur toutes les périodes d'échantillonnage
-	if (millis() - time_sample > sample_time) {
-		time_sample = millis();
-		pid.setInput(encoder.read()); // Règle l'entrée du PID avec la position de l'encodeur
-		pid.compute(); // Calcul le PID
+	pid.setInput(encoder.read());
+	pid.compute();
+	motor.setPwm(int16_t(pid.getOutput()));
 
-		motor.setPwm(pid.getOutput()); // Règle le pwm du moteur selon la sortie du PID
-	}
-
-	// Affiche la position du moteur toutes les périodes d'affichage
-	if (millis() - time_display > display_time) {
-		time_display = millis();
-		Serial.println(pid.getInput());
-	}
+	if (millis() - time > display_time) {
+		time += display_time;
+		Serial.print(encoder.read());
+		Serial.print(" ");
+		Serial.println(pid.getOutput());
+  }
 }
 ```

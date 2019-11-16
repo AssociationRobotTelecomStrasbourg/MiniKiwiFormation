@@ -29,10 +29,10 @@
 #define IN2_1 10
 
 // Motor Encoder input, typical value is 100.37*12 = 1244.4 counts per turn
-#define A1 7
-#define B1 8
-#define A2 11
-#define B2 12
+#define A_1 7
+#define B_1 8
+#define A_2 11
+#define B_2 12
 
 // Blinks the LED_BUILTIN
 #define LED_TEENSY 13
@@ -50,7 +50,7 @@
 
 // Servo Inputs
 // Should be connected to the servomotor's potentiometer to get an accurate value of its position, should work with most 5V servos as their potentiometer value is around 2.3V
-#define SERVO_FB1 20
+#define SERVO_FB_1 20
 #define SERVO_FB2 17
 #define SERVO FB3 16
 

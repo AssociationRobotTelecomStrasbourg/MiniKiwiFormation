@@ -1,18 +1,21 @@
-#include <Arduino.h>
-#include <Encoder.h> // Inclue la librairie encodeur
-#include "board.h" // Contient les noms de pins de la Teensy
+#include <Encoder.h>
+#include "board.h"
+#include "motor.h"
+#include "PIDv2.h"
 
-Encoder enc(A1, B1); //Déclaration des pins de l'encodeur
-int32_t pos = 0; // variable qui prendra la valeur de la position du moteur
+Encoder encoder(A_1, B_1); //Déclaration des pins de l'encodeur
+int32_t position = 0;
+
+Motor motor(IN1_1, IN2_1);
 
 void setup() {
 	Serial.begin(9600);
-	Serial.println("Starting Test");
 	delay(3000);
+	motor.set_pwm(28);
 }
 
 void loop() {
-	pos = enc.read();
-	Serial.println(pos);
+	position = encoder.read();
+	Serial.println(position);
 	delay(100);
 }

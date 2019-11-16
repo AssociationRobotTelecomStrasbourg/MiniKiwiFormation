@@ -69,9 +69,11 @@ Le fichier `board.h` donne les noms et fonctionnalités de chaques pins, ainsi i
 
 Par exemple `LED_DEBUG` permet d'accéder à la pin de la LED rouge et `LED_TEENSY` permet d'accéder à la pin de la LED orange sur la Teensy.
 
+Pour utiliser ces noms il faut inclure le fichier `board.h`.
+
 ```c++
 
-#include "board.h" // Contient les noms de pins de la Teensy
+#include "board.h"
 
 void setup() {
 	//Déclaration en output des deux leds du miniKiwi
@@ -128,7 +130,7 @@ IN1 | IN2 | Fonction réalisée
 
 ```c++
 
-#include "board.h" // Contient les noms de pins de la Teensy
+#include "board.h"
 
 void setup() {
 	//Déclaration en output des deux entrées du driver de moteur 1
@@ -172,7 +174,7 @@ La fonction `analogWrite` va faire varier la tension de 0 à 12V, pour des valeu
 
 ```c++
 
-#include "board.h" // Contient les noms de pins de la Teensy
+#include "board.h"
 
 void setup() {
 	//Déclaration en output des deux entrées du driver de moteur 1
@@ -209,27 +211,28 @@ Les moteurs pololu utilisés possèdent aussi des encodeurs qui permettent de r�
 
 Les encodeurs utilisés la plupart du temps sont dit _"encodeurs à quadrature de phase"_.
 
-_Il n'est pas important pour la formation de comprendre leur principe de fonctionnement_, mais vous pouvez cliquer [ici](https://www.pjrc.com/teensy/td_libs_Encoder.html) pour des explications sur la librairie que nous allons utiliser.
+_Il n'est pas important pour la formation de comprendre leur principe de fonctionnement_, vous pouvez cliquer [ici](https://www.pjrc.com/teensy/td_libs_Encoder.html) pour des explications sur la librairie que nous allons utiliser.
 
 ```c++
 
-#include <Encoder.h> // Inclue la librairie encodeur
-#include "board.h" // Contient les noms de pins de la Teensy
+#include <Encoder.h>
+#include "board.h"
 
-Encoder enc(A1, B1); //Déclaration des pins de l'encodeur
-int32_t pos = 0; // variable qui prendra la valeur de la position du moteur
+Encoder encoder(A_1, B_1);
+int32_t position = 0;
 
 void setup() {
 	Serial.begin(9600);
 	Serial.println("Starting Test");
-	delay(3000); //On laisse le temps à la liaison série de s'établir
+	delay(3000);
 }
 
 void loop() {
-	pos = enc.read(); //On lit la valeur de la position et on la stocke dans pos
-	Serial.println(pos); //On revoie la valeur dans le moniteur série
+	position = encoder.read(); //On lit la valeur de la position et on la stocke dans position
+	Serial.println(position);
 	delay(100);
 }
+
 ```
 
 Noter quel est le sens de rotation qui fait augmenter la valeur de position.
@@ -237,7 +240,7 @@ Noter quel est le sens de rotation qui fait augmenter la valeur de position.
 ### Challenges
 
 - On sait que le moteur a une réduction 100:1, déterminer le nombre de pas par tours de l'encodeur et la précision en degrée.
-- Utiliser la fonction [`map(value, fromLow, fromHigh, toLow, toHigh)`](https://www.arduino.cc/reference/en/language/functions/math/map/) pour convertir et afficher la valeur `pos` en degrées.
+- Utiliser la fonction [`map(value, fromLow, fromHigh, toLow, toHigh)`](https://www.arduino.cc/reference/en/language/functions/math/map/) pour convertir et afficher la valeur `position` en tours.
 
 ## Utiliser encodeurs et moteurs en même temps
 
@@ -247,24 +250,31 @@ Il utilise une librairie simple, dont le fonctionnement est détaillé en dessou
 
 ```c++
 
-#include <Encoder.h> // Inclue la librairie encodeur
-#include "board.h" // Contient les noms de pins de la Teensy
+#include <Encoder.h>
+#include "board.h"
+#include "motor.h"
 
-Encoder enc(A1, B1); //Déclaration des pins de l'encodeur
-int32_t pos = 0; // variable qui prendra la valeur de la position du moteur
+Encoder encoder(A_1, B_1); //Déclaration des pins de l'encodeur
+int32_t position = 0;
+
+Motor motor(IN1_1, IN2_1);
 
 void setup() {
 	Serial.begin(9600);
-	Serial.println("Starting Test");
-	delay(3000); //On laisse le temps à la liaison série de s'établir
+	delay(3000);
+	motor.set_pwm(127);
 }
 
 void loop() {
-	pos = enc.read(); //On lit la valeur de la position et on la stocke dans pos
-	Serial.println(pos); //On revoie la valeur dans le moniteur série
+	position = encoder.read();
+	Serial.println(position);
 	delay(100);
 }
 ```
+
+## challenges
+
+- Afficher la vitesse du moteur en tours par seconde
 
 ## Régulation PID
 

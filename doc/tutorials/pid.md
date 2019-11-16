@@ -303,44 +303,46 @@ Vous disposez de :
 ```c++
 #include <Arduino.h>
 #include <Encoder.h>
-#include "board.h"
-#include "motor.h"
-#include "PIDv2.h"
+#include <motor.h>
+#include <pid.h>
+#include "board.h" // Contient les noms de pins de la Teensy
 
-Motor motor(IN1_1, IN2_1);
-Encoder encoder(A_1, B_1);
+uint32_t sample_time = 10; // Période d'échantillonnage
+uint32_t display_time = 100; // Période d'affichage sur la liaison série
+uint32_t time_sample, time_display; // Temps écoulé depuis la dernière période
 
-const uint32_t sample_time = 10;
-PID pid(2, 0.2, 5, sample_time);
+Encoder encoder(A_1, B_1); // Initialise encoder
+Motor motor(IN1_1, IN2_1); // Initialise motor
+PID pid(2, 0.3, 5, sample_time); // Initialise pid pour un contrôle en position
 
-uint32_t time;
-const uint32_t display_time = 30;
+int32_t position = 1200;
 
 void setup() {
-	Serial.begin(9600);
-	delay(3000);
+	Serial.begin(9600); // Initialise le port Serial
+	while(!Serial); // Attend tant que le port Serial soit prêt
+	Serial.println("Position");
 
-	pid.setOutputLimits(-255, 255);
+	pid.setMode(true); // Active le PID
+	pid.setReference(position); // Règle la consigne de position du PID
 
-	pid.setInput(encoder.read());
-	pid.setReference(1200.0);
-
-	pid.setMode(AUTOMATIC);
-
-	time = millis();
-	while(!Serial.available());
+	time_sample = millis();
+	time_display = millis();
 }
 
 void loop() {
-	pid.setInput(encoder.read());
-	pid.compute();
-	motor.setPwm(int16_t(pid.getOutput()));
+	// Asservi le moteur toutes les périodes d'échantillonnage
+	if (millis() - time_sample > sample_time) {
+		time_sample = millis();
+		pid.setInput(encoder.read()); // Règle l'entrée du PID avec la position de l'encodeur
+		pid.compute(); // Calcul le PID
 
-	if (millis() - time > display_time) {
-		time += display_time;
-		Serial.print(encoder.read());
-		Serial.print(" ");
-		Serial.println(pid.getOutput());
-  }
+		motor.setPwm(pid.getOutput()); // Règle le pwm du moteur selon la sortie du PID
+	}
+
+	// Affiche la position du moteur toutes les périodes d'affichage
+	if (millis() - time_display > display_time) {
+		time_display = millis();
+		Serial.println(pid.getInput());
+	}
 }
 ```

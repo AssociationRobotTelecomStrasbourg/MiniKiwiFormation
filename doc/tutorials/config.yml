@@ -1,0 +1,12 @@
+# Port name of the serial port
+port_name: '/dev/ttyACM0'
+# Baud rate of the serial connection
+baud_rate: 115200
+# Sample time in milliseconds
+sample_time: 100
+# PID coefficients
+kp: 0
+ki: 0
+kd: 0
+# Reference
+reference: 0

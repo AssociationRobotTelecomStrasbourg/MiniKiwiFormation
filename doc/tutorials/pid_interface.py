@@ -2,15 +2,65 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from PyQt5.QtWidgets import (QWidget, QPushButton, QSpinBox, QDoubleSpinBox, QVBoxLayout, QLineEdit, QHBoxLayout, QFormLayout, QGroupBox, QApplication)
+from PyQt5.QtWidgets import (QWidget, QPushButton, QDoubleSpinBox, QVBoxLayout, QLineEdit, QHBoxLayout, QFormLayout, QGroupBox, QApplication, QSizePolicy)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-from matplotlib.animation import FuncAnimation
+import matplotlib.animation as animation
 import numpy as np
 import yaml
+from PyQt5 import QtCore
 from binserial import BinSerial
 import threading
+import time
+
+class MyMplCanvas(FigureCanvas):
+	"""Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
+	def __init__(self, parent=None, width=5, height=4, dpi=100):
+		fig = Figure(figsize=(width, height), dpi=dpi)
+		self.axes = fig.add_subplot(111)
+
+		self.compute_initial_figure()
+
+		FigureCanvas.__init__(self, fig)
+		self.setParent(parent)
+
+		FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
+		FigureCanvas.updateGeometry(self)
+
+	def compute_initial_figure(self):
+		pass
+
+
+class BeautifulPlot(MyMplCanvas):
+	def __init__(self, *args, **kwargs):
+		MyMplCanvas.__init__(self, *args, **kwargs)
+		self.compute_initial_figure()
+		timer = QtCore.QTimer(self)
+		timer.timeout.connect(self.update_figure)
+		timer.start(60)
+
+		self.d = [[],[]]
+		self.axes.set_title('Motor Response')
+		self.axes.legend()
+
+	def compute_initial_figure(self):
+		self.p, = self.axes.plot([], [], 'b', label="Encoder position")
+
+	def update_figure(self):
+		#self.axes.cla()
+		#self.axes.plot(self.d[0],self.d[1], 'r')
+		self.p.set_data(self.d)
+		self.axes.relim()
+		self.axes.autoscale_view(True,True,True)
+		self.draw()
+
+	def addData(self, x_s, y_s):
+		self.d[0] += x_s
+		self.d[1] += y_s
+		if len(self.d[0]) > 1000:
+			self.d[0] = self.d[0][-1000:]
+			self.d[1] = self.d[1][-1000:]
 
 
 class PidInterface(QWidget):
@@ -90,18 +140,12 @@ class PidInterface(QWidget):
 		pid_layout.addStretch()
 
 		# Display
-		self.figure = Figure()
-		self.canvas = FigureCanvas(self.figure)
-		self.toolbar = NavigationToolbar(self.canvas, self)
-
-		display_layout = QVBoxLayout()
-		display_layout.addWidget(self.toolbar)
-		display_layout.addWidget(self.canvas)
+		self.plot = BeautifulPlot(self)
 
 		# Main
 		main_layout = QHBoxLayout()
 		main_layout.addLayout(pid_layout)
-		main_layout.addLayout(display_layout)
+		main_layout.addWidget(self.plot)
 
 		self.setLayout(main_layout)
 
@@ -111,21 +155,12 @@ class PidInterface(QWidget):
 		self.bser.write(['float']*4, [self.kp, self.ki, self.kd, self.reference])
 
 	def read_output(self):
+		i = 0
 		while (True):
+			i += 1
 			output = self.bser.read(['float'])
+			self.plot.addData([i],[output])
 			print(output)
-
-	def plot(self):
-		"""Plot step response"""
-		self.figure.clear()
-
-		ax = self.figure.add_subplot(111)
-		ax.plot(self.t, self.output, label='output')
-		# ax.plot(self.t, f(self.t, self.k, self.tau), label='model speed')
-		ax.set_title('Motor Step Response')
-		ax.legend()
-
-		self.canvas.draw()
 
 
 if __name__ == '__main__':

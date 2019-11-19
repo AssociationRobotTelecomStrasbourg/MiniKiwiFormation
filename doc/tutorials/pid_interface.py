@@ -34,35 +34,20 @@ class PidInterface(QWidget):
 		self.sample_time = config['sample_time']
 		self.reference = config['reference']
 
-	def set_sample_time(self, new_sample_time):
-		self.sample_time = new_sample_time
-		print(self.sample_time)
-
 	def set_kp(self, new_kp):
 		self.kp = new_kp
-		print(self.kp)
 
 	def set_ki(self, new_ki):
 		self.ki = new_ki
-		print(self.ki)
 
 	def set_kd(self, new_kd):
 		self.kd = new_kd
-		print(self.kd)
 
 	def set_reference(self, new_reference):
 		self.reference = new_reference
-		print(self.reference)
 
 	def init_ui(self):
-
 		# Parameters
-		self.sample_time_spin = QSpinBox()
-		self.sample_time_spin.setMinimum(0)
-		self.sample_time_spin.setMaximum(1000)
-		self.sample_time_spin.setValue(self.sample_time)
-		self.sample_time_spin.valueChanged.connect(self.set_sample_time)
-
 		self.kp_spin = QDoubleSpinBox()
 		self.kp_spin.setMinimum(0)
 		self.kp_spin.setMaximum(float('inf'))
@@ -88,7 +73,6 @@ class PidInterface(QWidget):
 		self.reference_spin.valueChanged.connect(self.set_reference)
 
 		parameters_layout = QFormLayout()
-		parameters_layout.addRow('sample_time', self.sample_time_spin)
 		parameters_layout.addRow('kp', self.kp_spin)
 		parameters_layout.addRow('ki', self.ki_spin)
 		parameters_layout.addRow('kd', self.kd_spin)
@@ -124,7 +108,7 @@ class PidInterface(QWidget):
 	def sent_parameters(self):
 		"""run the step response and get the measures"""
 		# Write some data to the arduino
-		self.bser.write(['uint32']+['float']*4, [self.sample_time, self.kp, self.ki, self.kd, self.reference])
+		self.bser.write(['float']*4, [self.kp, self.ki, self.kd, self.reference])
 
 	def read_output(self):
 		while (True):

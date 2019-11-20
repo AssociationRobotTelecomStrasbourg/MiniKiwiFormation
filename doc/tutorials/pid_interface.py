@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from PyQt5.QtWidgets import (QWidget, QPushButton, QDoubleSpinBox, QVBoxLayout, QLineEdit, QHBoxLayout, QFormLayout, QGroupBox, QApplication, QSizePolicy)
+from PyQt5.QtWidgets import (QWidget, QPushButton, QSpinBox, QDoubleSpinBox, QVBoxLayout, QLineEdit, QCheckBox, QHBoxLayout, QFormLayout, QGroupBox, QApplication, QSizePolicy)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
@@ -83,6 +83,11 @@ class PidInterface(QWidget):
 		self.kd = config['kd']
 		self.sample_time = config['sample_time']
 		self.reference = config['reference']
+		self.mode = config['mode']
+		self.anti_windup = config['anti_windup']
+
+	def set_sample_time(self, new_sample_time):
+		self.sample_time = new_sample_time
 
 	def set_kp(self, new_kp):
 		self.kp = new_kp
@@ -96,8 +101,22 @@ class PidInterface(QWidget):
 	def set_reference(self, new_reference):
 		self.reference = new_reference
 
+	def set_mode(self, new_mode):
+		self.mode = new_mode
+
+	def set_anti_windup(self, new_anti_windup):
+		self.anti_windup = new_anti_windup
+
 	def init_ui(self):
+		self.setWindowTitle('PidInterface')
+
 		# Parameters
+		self.sample_time_spin = QSpinBox()
+		self.sample_time_spin.setMinimum(0)
+		self.sample_time_spin.setMaximum(1000)
+		self.sample_time_spin.setValue(self.sample_time)
+		self.sample_time_spin.valueChanged.connect(self.set_sample_time)
+
 		self.kp_spin = QDoubleSpinBox()
 		self.kp_spin.setMinimum(0)
 		self.kp_spin.setMaximum(float('inf'))
@@ -122,21 +141,52 @@ class PidInterface(QWidget):
 		self.reference_spin.setValue(self.reference)
 		self.reference_spin.valueChanged.connect(self.set_reference)
 
+		self.mode_check = QCheckBox()
+		self.mode_check.setChecked(self.mode)
+		self.mode_check.stateChanged.connect(self.set_mode)
+
+		self.anti_windup_check = QCheckBox()
+		self.anti_windup_check.setChecked(self.anti_windup)
+		self.anti_windup_check.stateChanged.connect(self.set_anti_windup)
+
 		parameters_layout = QFormLayout()
+		parameters_layout.addRow('sample_time', self.sample_time_spin)
 		parameters_layout.addRow('kp', self.kp_spin)
 		parameters_layout.addRow('ki', self.ki_spin)
 		parameters_layout.addRow('kd', self.kd_spin)
 		parameters_layout.addRow('reference', self.reference_spin)
+		parameters_layout.addRow('mode', self.mode_check)
+		parameters_layout.addRow('anti_windup', self.anti_windup_check)
 
-		parameters_group = QGroupBox('Measure parameters')
+		parameters_group = QGroupBox('Parameters')
 		parameters_group.setLayout(parameters_layout)
 
 		apply_button = QPushButton('Apply')
 		apply_button.clicked.connect(self.sent_parameters)
 
+		# Variables
+		self.input_edit = QLineEdit()
+		self.input_edit.setReadOnly(True)
+
+		self.output_edit = QLineEdit()
+		self.output_edit.setReadOnly(True)
+
+		self.integral_edit = QLineEdit()
+		self.integral_edit.setReadOnly(True)
+
+
+		variables_layout = QFormLayout()
+		variables_layout.addRow('input', self.input_edit)
+		variables_layout.addRow('output', self.output_edit)
+		variables_layout.addRow('integral', self.integral_edit)
+
+		variables_group = QGroupBox('Variables')
+		variables_group.setLayout(variables_layout)
+
 		pid_layout = QVBoxLayout()
 		pid_layout.addWidget(parameters_group)
 		pid_layout.addWidget(apply_button)
+		pid_layout.addWidget(variables_group)
 		pid_layout.addStretch()
 
 		# Display

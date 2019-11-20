@@ -111,13 +111,13 @@ if __name__ == '__main__':
     baud_rate = 9600
 
     # Define the format of the structure of the data
-    struct_format = ['uint32'] + ['float']*4
+    struct_format = ['uint32'] + ['float']*4 + ['bool']*2
 
     # Initialize connection
     bser = BinSerial(port_name, baud_rate)
 
     # Test echo
-    bser.write(struct_format, [10, 0, 0, 0, 0])
+    bser.write(struct_format, [10, 0, 0, 0, 0, True, False])
     data = bser.read(struct_format)
 
     print(data)

@@ -16,10 +16,19 @@ typedef struct {
 	bool anti_windup;
 } settings_t;
 
+// Variables du PID
+typedef struct {
+	float input;
+	float output;
+	float integral;
+} variables_t;
+
 settings_t settings = {10, 0, 0, 0, 0, false, true}; // Réglages du PID
 size_t settings_size = 22;
 
-float input; // Position du codeur
+variables_t variables = {0, 0, 0};
+size_t variables_size = 12;
+
 uint32_t time; // Temps de la dernière période d'échantillonnage
 
 Motor motor(IN1_1, IN2_1); // Initialise motor
@@ -46,18 +55,23 @@ void loop() {
 		time = millis();
 
 		// Calcul et applique le PID
-		input = encoder.read();
-		pid.setInput(input);
-		pid.compute();
-		motor.setPwm(pid.getOutput());
+		variables.input = encoder.read(); // Lit l'entrée
 
-		// Envoie la positon du codeur à pid_interface.py
-		writeData(&input, sizeof(input));
+		pid.setInput(variables.input); // Met à jour l'entrée du PID
+		pid.compute(); // Calcul le PID
+
+		variables.integral = pid.getIntegral(); // Lit le terme intégral
+		variables.output = pid.getOutput(); // Lit la sortie
+		motor.setPwm(variables.output); // Applique la sortie
+
+		// Envoie les variables du PID à pid_interface.py
+		writeData(&variables, sizeof(variables_size));
 
 		// Met à jour les réglages du PID si réception de nouveaux réglages
 		if (Serial.available()) {
 			digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // Change l'état de la led
 			readData(&settings, settings_size); // Reçoit les réglages
+
 			// Applique les réglages
 			pid.setMode(settings.mode);
 			pid.setAntiWindup(settings.anti_windup);

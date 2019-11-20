@@ -202,15 +202,17 @@ class PidInterface(QWidget):
 	def sent_parameters(self):
 		"""run the step response and get the measures"""
 		# Write some data to the arduino
-		self.bser.write(['uint32']+['float']*4+['bool']*2, [self.sample_time, self.kp, self.ki, self.kd, self.reference, True, True])
+		self.bser.write(['uint32']+['float']*4+['bool']*2, [self.sample_time, self.kp, self.ki, self.kd, self.reference, self.mode, self.anti_windup])
 
 	def read_output(self):
 		i = 0
 		while (True):
 			i += 1
-			output = self.bser.read(['float'])
+			input, output, integral = self.bser.read(['float']*3)
 			self.plot.addData([i],[output])
-			print(output)
+			self.input_edit.setText(str(self.input))
+			self.output_edit.setText(str(self.output))
+			self.integral_edit.setText(str(self.integral))
 
 
 if __name__ == '__main__':

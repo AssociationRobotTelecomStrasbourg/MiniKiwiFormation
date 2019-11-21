@@ -65,7 +65,7 @@ void loop() {
 		motor.setPwm(variables.output); // Applique la sortie
 
 		// Envoie les variables du PID à pid_interface.py
-		writeData(&variables, sizeof(variables_size));
+		writeData(&variables, sizeof(variables));
 
 		// Met à jour les réglages du PID si réception de nouveaux réglages
 		if (Serial.available()) {

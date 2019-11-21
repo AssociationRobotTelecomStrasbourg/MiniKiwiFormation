@@ -143,11 +143,11 @@ class PidInterface(QWidget):
 
 		self.mode_check = QCheckBox()
 		self.mode_check.setChecked(self.mode)
-		self.mode_check.stateChanged.connect(self.set_mode)
+		self.mode_check.toggled.connect(self.set_mode)
 
 		self.anti_windup_check = QCheckBox()
 		self.anti_windup_check.setChecked(self.anti_windup)
-		self.anti_windup_check.stateChanged.connect(self.set_anti_windup)
+		self.anti_windup_check.toggled.connect(self.set_anti_windup)
 
 		parameters_layout = QFormLayout()
 		parameters_layout.addRow('sample_time', self.sample_time_spin)
@@ -209,10 +209,10 @@ class PidInterface(QWidget):
 		while (True):
 			i += 1
 			input, output, integral = self.bser.read(['float']*3)
-			self.plot.addData([i],[output])
-			self.input_edit.setText(str(self.input))
-			self.output_edit.setText(str(self.output))
-			self.integral_edit.setText(str(self.integral))
+			self.plot.addData([i],[input])
+			self.input_edit.setText(str(input))
+			self.output_edit.setText(str(output))
+			self.integral_edit.setText(str(integral))
 
 
 if __name__ == '__main__':

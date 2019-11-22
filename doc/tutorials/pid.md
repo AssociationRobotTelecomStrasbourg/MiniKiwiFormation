@@ -3,6 +3,7 @@
 ## Information à rajouter
 
 - [ ] Explication générale du PID
+	- [ ] P, I, D term
 	- [ ] Tableau
 	- [ ] Windup
 	- [ ] Réglage
@@ -313,6 +314,65 @@ Vous disposez de :
 - La librairie encodeur et la capacité à calculer l'angle du moteurs.
 - La librairie de contrôle de vitesse/direction moteur introduite précédemment.
 
+- [ ] Explication de P, I, D
+- [ ] Saturation de la commande
+- [ ] Réglage du PID
+- [ ] Anti-Windup
+
+![pid.png](pid.png)
+
+Le terme _P_ est proportionnel à l'erreur.
+
+Points forts:
+- Temps de montée diminué
+- Erreur statique diminué
+
+Points faibles:
+- Dépassement augmente
+- Stabilité dégradée
+
+Le terme _I_ intègre l'erreur.
+
+Points forts:
+- Erreur statique éliminée
+- Temps de montée diminué
+- Temps de réponse diminué
+
+Points faibles:
+- Dépassement augmenté
+- Stabilité dégradée
+
+Le terme _D_ dérive le signal et permet d'amortir
+
+Points forts:
+- Stabilité améliorée
+
+Points faibles:
+-
+
+Plus un terme est augmenté plus l'effet est important
+
+
+Effet d'augementation indépendante des paramètres
+
+| Effet            | Kp | Ki | Kd |
+| ---------------- | -- | -- | -- |
+| Temps de montée  | Diminue | Diminue | Négligeable |
+| Dépassement      | Augmente | Augmente | Diminue |
+| Temps de réponse | Négligeable | Augmente | Diminue |
+| Erreur statique  | Diminue | Élimine | Pas d'effet |
+| Stabilité        | Dégrade | Dégrade | Améliore si Kd est petit |
+
+![](pid_tuning.gif)
+
+### Anti-windup
+Le terme _I_ intègre l'erreur.
+Sur la zone de montée l'erreur est grande et sur la zone de stabilisation
+
+Avec une erreur plus petite, le terme _I_ peut être augmenté
+
+- Permet d'activer le terme _I_ uniquement dans la zone linéaire, on n'en a pas besoin pendant le temps de montée c'est le terme _P_ qui s'en occupe.
+
 ```c++
 #include <Arduino.h>
 #include <Encoder.h>
@@ -397,3 +457,7 @@ void loop() {
 	}
 }
 ```
+
+## Ressources
+- [PID controller - Wikipédia](https://en.wikipedia.org/wiki/PID_controller)
+- []()

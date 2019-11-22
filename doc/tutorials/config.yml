@@ -5,10 +5,10 @@ baud_rate: 115200
 # Sample time in milliseconds
 sample_time: 10
 # PID coefficients
-kp: 0
-ki: 0
-kd: 0
+kp: 2
+ki: 0.3
+kd: 5
 # Reference
-reference: 0
+reference: 1200
 mode: true
 anti_windup: true

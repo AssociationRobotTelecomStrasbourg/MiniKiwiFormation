@@ -41,11 +41,11 @@ class BeautifulPlot(MyMplCanvas):
 		timer.start(60)
 
 		self.d = [[],[]]
-		self.axes.set_title('Motor Response')
-		self.axes.legend()
+		self.axes.set_title('Input')
+		# self.axes.legend()
 
 	def compute_initial_figure(self):
-		self.p, = self.axes.plot([], [], 'b', label="Encoder position")
+		self.p, = self.axes.plot([], [], 'b')
 
 	def update_figure(self):
 		#self.axes.cla()
@@ -68,9 +68,12 @@ class PidInterface(QWidget):
 		super().__init__()
 		self.init_parameters()
 		self.init_ui()
+		self.init_serial()
+
+	def init_serial(self):
 		self.bser = BinSerial(self.port_name, self.baud_rate)
 
-		self.read_thread = threading.Thread(target=self.read_output)
+		self.read_thread = threading.Thread(target=self.read_variables)
 		self.read_thread.start()
 
 	def init_parameters(self):
@@ -114,6 +117,7 @@ class PidInterface(QWidget):
 		self.sample_time_spin = QSpinBox()
 		self.sample_time_spin.setMinimum(0)
 		self.sample_time_spin.setMaximum(1000)
+		self.sample_time_spin.setSuffix(' ms')
 		self.sample_time_spin.setValue(self.sample_time)
 		self.sample_time_spin.valueChanged.connect(self.set_sample_time)
 
@@ -204,7 +208,7 @@ class PidInterface(QWidget):
 		# Write some data to the arduino
 		self.bser.write(['uint32']+['float']*4+['bool']*2, [self.sample_time, self.kp, self.ki, self.kd, self.reference, self.mode, self.anti_windup])
 
-	def read_output(self):
+	def read_variables(self):
 		i = 0
 		while (True):
 			i += 1

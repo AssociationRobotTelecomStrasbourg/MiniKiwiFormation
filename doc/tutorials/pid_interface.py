@@ -13,6 +13,7 @@ from PyQt5 import QtCore
 from binserial import BinSerial
 import threading
 import time
+import collections
 
 class MyMplCanvas(FigureCanvas):
 	"""Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
@@ -40,9 +41,14 @@ class BeautifulPlot(MyMplCanvas):
 		timer.timeout.connect(self.update_figure)
 		timer.start(60)
 
-		self.d1 = [[],[]]
-		self.d2 = [[],[]]
-		self.axes.set_title('Input')
+		nb_point = 200
+
+		self.x = collections.deque([0]*nb_point, nb_point)
+		self.y1 = collections.deque([0]*nb_point, nb_point)
+		self.y2 = collections.deque([0]*nb_point, nb_point)
+		self.d1 = [self.x, self.y1]
+		self.d2 = [self.x, self.y2]
+		self.axes.set_title('Response')
 		# self.axes.legend()
 
 	def compute_initial_figure(self):
@@ -59,15 +65,9 @@ class BeautifulPlot(MyMplCanvas):
 		self.draw()
 
 	def addData(self, x_s, y_s1, y_s2):
-		self.d1[0] += x_s
-		self.d1[1] += y_s1
-		self.d2[0] += x_s
-		self.d2[1] += y_s2
-		if len(self.d1[0]) > 1000:
-			self.d1[0] = self.d1[0][-1000:]
-			self.d1[1] = self.d1[1][-1000:]
-			self.d2[0] = self.d2[0][-1000:]
-			self.d2[1] = self.d2[1][-1000:]
+		self.x.append(x_s)
+		self.y1.append(y_s1)
+		self.y2.append(y_s2)
 
 
 class PidInterface(QWidget):
@@ -224,7 +224,7 @@ class PidInterface(QWidget):
 		while (True):
 			i += 1
 			input, setpoint, output, integral = self.bser.read(['float']*4)
-			self.plot.addData([i],[input],[setpoint])
+			self.plot.addData(i,input,setpoint)
 			self.input_edit.setText(str(input))
 			self.setpoint_edit.setText(str(setpoint))
 			self.output_edit.setText(str(output))

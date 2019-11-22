@@ -9,6 +9,6 @@ kp: 2
 ki: 0.3
 kd: 5
 # Reference
-reference: 1200
+setpoint: 1200
 mode: true
 anti_windup: true

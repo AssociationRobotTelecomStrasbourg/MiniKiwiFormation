@@ -40,27 +40,34 @@ class BeautifulPlot(MyMplCanvas):
 		timer.timeout.connect(self.update_figure)
 		timer.start(60)
 
-		self.d = [[],[]]
+		self.d1 = [[],[]]
+		self.d2 = [[],[]]
 		self.axes.set_title('Input')
 		# self.axes.legend()
 
 	def compute_initial_figure(self):
-		self.p, = self.axes.plot([], [], 'b')
+		self.p1, = self.axes.plot([], [])
+		self.p2, = self.axes.plot([], [])
 
 	def update_figure(self):
 		#self.axes.cla()
 		#self.axes.plot(self.d[0],self.d[1], 'r')
-		self.p.set_data(self.d)
+		self.p1.set_data(self.d1)
+		self.p2.set_data(self.d2)
 		self.axes.relim()
 		self.axes.autoscale_view(True,True,True)
 		self.draw()
 
-	def addData(self, x_s, y_s):
-		self.d[0] += x_s
-		self.d[1] += y_s
-		if len(self.d[0]) > 1000:
-			self.d[0] = self.d[0][-1000:]
-			self.d[1] = self.d[1][-1000:]
+	def addData(self, x_s, y_s1, y_s2):
+		self.d1[0] += x_s
+		self.d1[1] += y_s1
+		self.d2[0] += x_s
+		self.d2[1] += y_s2
+		if len(self.d1[0]) > 1000:
+			self.d1[0] = self.d1[0][-1000:]
+			self.d1[1] = self.d1[1][-1000:]
+			self.d2[0] = self.d2[0][-1000:]
+			self.d2[1] = self.d2[1][-1000:]
 
 
 class PidInterface(QWidget):
@@ -85,7 +92,7 @@ class PidInterface(QWidget):
 		self.ki = config['ki']
 		self.kd = config['kd']
 		self.sample_time = config['sample_time']
-		self.reference = config['reference']
+		self.setpoint = config['setpoint']
 		self.mode = config['mode']
 		self.anti_windup = config['anti_windup']
 
@@ -101,8 +108,8 @@ class PidInterface(QWidget):
 	def set_kd(self, new_kd):
 		self.kd = new_kd
 
-	def set_reference(self, new_reference):
-		self.reference = new_reference
+	def set_setpoint(self, new_setpoint):
+		self.setpoint = new_setpoint
 
 	def set_mode(self, new_mode):
 		self.mode = new_mode
@@ -139,11 +146,11 @@ class PidInterface(QWidget):
 		self.kd_spin.setValue(self.kd)
 		self.kd_spin.valueChanged.connect(self.set_kd)
 
-		self.reference_spin = QDoubleSpinBox()
-		self.reference_spin.setMinimum(0)
-		self.reference_spin.setMaximum(float('inf'))
-		self.reference_spin.setValue(self.reference)
-		self.reference_spin.valueChanged.connect(self.set_reference)
+		self.setpoint_spin = QDoubleSpinBox()
+		self.setpoint_spin.setMinimum(0)
+		self.setpoint_spin.setMaximum(float('inf'))
+		self.setpoint_spin.setValue(self.setpoint)
+		self.setpoint_spin.valueChanged.connect(self.set_setpoint)
 
 		self.mode_check = QCheckBox()
 		self.mode_check.setChecked(self.mode)
@@ -158,7 +165,7 @@ class PidInterface(QWidget):
 		parameters_layout.addRow('kp', self.kp_spin)
 		parameters_layout.addRow('ki', self.ki_spin)
 		parameters_layout.addRow('kd', self.kd_spin)
-		parameters_layout.addRow('reference', self.reference_spin)
+		parameters_layout.addRow('setpoint', self.setpoint_spin)
 		parameters_layout.addRow('mode', self.mode_check)
 		parameters_layout.addRow('anti_windup', self.anti_windup_check)
 
@@ -172,6 +179,9 @@ class PidInterface(QWidget):
 		self.input_edit = QLineEdit()
 		self.input_edit.setReadOnly(True)
 
+		self.setpoint_edit = QLineEdit()
+		self.setpoint_edit.setReadOnly(True)
+
 		self.output_edit = QLineEdit()
 		self.output_edit.setReadOnly(True)
 
@@ -181,6 +191,7 @@ class PidInterface(QWidget):
 
 		variables_layout = QFormLayout()
 		variables_layout.addRow('input', self.input_edit)
+		variables_layout.addRow('setpoint', self.setpoint_edit)
 		variables_layout.addRow('output', self.output_edit)
 		variables_layout.addRow('integral', self.integral_edit)
 
@@ -206,15 +217,16 @@ class PidInterface(QWidget):
 	def sent_parameters(self):
 		"""run the step response and get the measures"""
 		# Write some data to the arduino
-		self.bser.write(['uint32']+['float']*4+['bool']*2, [self.sample_time, self.kp, self.ki, self.kd, self.reference, self.mode, self.anti_windup])
+		self.bser.write(['uint32']+['float']*4+['bool']*2, [self.sample_time, self.kp, self.ki, self.kd, self.setpoint, self.mode, self.anti_windup])
 
 	def read_variables(self):
 		i = 0
 		while (True):
 			i += 1
-			input, output, integral = self.bser.read(['float']*3)
-			self.plot.addData([i],[input])
+			input, setpoint, output, integral = self.bser.read(['float']*4)
+			self.plot.addData([i],[input],[setpoint])
 			self.input_edit.setText(str(input))
+			self.setpoint_edit.setText(str(setpoint))
 			self.output_edit.setText(str(output))
 			self.integral_edit.setText(str(integral))
 

@@ -11,7 +11,7 @@ typedef struct {
 	float kp;
 	float ki;
 	float kd;
-	float reference;
+	float setpoint;
 	bool mode;
 	bool anti_windup;
 } settings_t;
@@ -19,6 +19,7 @@ typedef struct {
 // Variables du PID
 typedef struct {
 	float input;
+	float setpoint;
 	float output;
 	float integral;
 } variables_t;
@@ -26,15 +27,15 @@ typedef struct {
 settings_t settings = {10, 0, 0, 0, 0, false, true}; // Réglages du PID
 size_t settings_size = 22;
 
-variables_t variables = {0, 0, 0};
-size_t variables_size = 12;
+variables_t variables = {0, 0, 0, 0};
+size_t variables_size = 16;
 
 uint32_t time; // Temps de la dernière période d'échantillonnage
 
 Motor motor(IN1_1, IN2_1); // Initialise motor
 Encoder encoder(A_1, B_1); // Initialise encoder
 
-PID pid(0, 0, 0); // Initialise pid
+PID pid(2, 0.3, 5); // Initialise pid
 
 void setup() {
 	Serial.begin(9600); // Initialise Serial communication
@@ -44,7 +45,7 @@ void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, HIGH);
 
-	while(!Serial.available()); // Attend une consigne de pid_interface.py
+	// while(!Serial.available()); // Attend une consigne de pid_interface.py
 
 	time = millis() - settings.sample_time; // Initialise le temps
 }
@@ -76,7 +77,8 @@ void loop() {
 			pid.setMode(settings.mode);
 			pid.setAntiWindup(settings.anti_windup);
 			pid.setTunings(settings.kp, settings.ki, settings.kd);
-			pid.setSetpoint(settings.reference);
+			pid.setSetpoint(settings.setpoint);
+			variables.setpoint = settings.setpoint;
 		}
 	}
 }

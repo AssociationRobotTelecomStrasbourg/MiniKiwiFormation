@@ -318,6 +318,7 @@ Vous disposez de :
 - [ ] Saturation de la commande
 - [ ] Réglage du PID
 - [ ] Anti-Windup
+- [ ] PID Cascade
 
 ![pid.png](pid.png)
 

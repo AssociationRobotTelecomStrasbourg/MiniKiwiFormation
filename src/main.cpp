@@ -45,8 +45,6 @@ void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
 	digitalWrite(LED_BUILTIN, HIGH);
 
-	// while(!Serial.available()); // Attend une consigne de pid_interface.py
-
 	time = millis() - settings.sample_time; // Initialise le temps
 }
 

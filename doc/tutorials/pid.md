@@ -11,7 +11,7 @@
 	- [ ] Add button to reset integral
 	- [ ] Immediate effect of mode and anti_windup checkbox
 		- [ ] disable pid
-	- [ ] join read thread when closing UI
+	- [x] ~join read thread when closing UI~ Made the read thread a daemon
 - [ ] Remplacer ne pas toucher le moteur par ne pas bloquer
 - [ ] Explication serial monitor
 - [ ] réduction + pas par tour réduit ou non réduit

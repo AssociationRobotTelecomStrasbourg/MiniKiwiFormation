@@ -80,7 +80,7 @@ class PidInterface(QWidget):
 	def init_serial(self):
 		self.bser = BinSerial(self.port_name, self.baud_rate)
 
-		self.read_thread = threading.Thread(target=self.read_variables, args=(self.bser, self.plot.x, self.plot.y1, self.plot.y2))
+		self.read_thread = threading.Thread(target=self.read_variables, args=(self.bser, self.plot.x, self.plot.y1, self.plot.y2), daemon=True)
 		self.read_thread.start()
 
 	def init_parameters(self):

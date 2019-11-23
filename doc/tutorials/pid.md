@@ -2,16 +2,17 @@
 
 ## Information à rajouter
 
-- [ ] Explication générale du PID
-	- [ ] P, I, D term
-	- [ ] Tableau
-	- [ ] Windup
-	- [ ] Réglage
-	- [ ] Période d'échantillonnage effet
-- [ ] Préciser \_1
-- [ ] Enlever "faire coucou"
+- [ ] PidInterface
+	- [ ] Generalise BeautifulPlot
+		- [ ] Multiple subplots
+		- [ ] Multiple lines
+		- [ ] Give array of subplots, lines, labels
+	- [ ] Remove QLineEdit and add plot of output and integral instead
+	- [ ] Add button to reset integral
+	- [ ] Immediate effect of mode and anti_windup checkbox
+		- [ ] disable pid
+	- [ ] join read thread when closing UI
 - [ ] Remplacer ne pas toucher le moteur par ne pas bloquer
-- [ ] Retirer challenge kp
 - [ ] Explication serial monitor
 - [ ] réduction + pas par tour réduit ou non réduit
 - [ ] régulations en vitesse et Position
@@ -126,7 +127,7 @@ On utilise alors un _driver_, c'est un circuit dit "de puissance", il est capabl
 Pour contrôler les drivers du miniKiwi, il faut utiliser les pins :
 
 - `IN1_1` et `IN2_1` pour la sortie moteur 1
-- `IN1_2` et `IN2_2` pour la sortie moteur 2.
+- `IN1_2` et `IN2_2` pour la sortie moteur 2
 
 Il faut juste les déclarer en `OUTPUT`, et les contrôler avec les fonctions `digitalWrite` et/ou `analogWrite` comme toute autre sortie sur Arduino.
 
@@ -179,7 +180,6 @@ void loop() {
 
 ### Challenges
 
-- Faire un programme qui fait faire coucou au moteur
 - Faire déplacer le moteur de 1 tour exactement
 - Faire déplacer le moteur de 2 tours exactement
 - Remarquer qu'il est facile de ralentir le moteur avec sa main (le mettre à une vitesse basse pour cela)
@@ -303,7 +303,6 @@ Ce code utilise une librairie qu'on vous a codé pour vous simplifier la vie, vo
 ## challenges
 
 - Afficher la vitesse du moteur en tours par seconde.
-- Ecrire un code qui donne en consigne de pwm au moteur la différence entre sa vitesse actuelle, et une valeur de vitesse stockée dans une variable, multiplier cette différence par une variable `kp`.
 
 ## Régulation PID
 
@@ -319,6 +318,7 @@ Vous disposez de :
 - [ ] Réglage du PID
 - [ ] Anti-Windup
 - [ ] PID Cascade
+- [ ] Période d'échantillonnage effet
 
 ![pid.png](pid.png)
 

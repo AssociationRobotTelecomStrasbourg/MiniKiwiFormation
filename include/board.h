@@ -50,7 +50,7 @@
 
 // Servo Inputs
 // Should be connected to the servomotor's potentiometer to get an accurate value of its position, should work with most 5V servos as their potentiometer value is around 2.3V
-#define SERVO_FB_1 20
+#define SERVO_FB1 20
 #define SERVO_FB2 17
 #define SERVO FB3 16
 

@@ -64,10 +64,10 @@ class BeautifulPlot(MyMplCanvas):
 		self.axes.autoscale_view(True,True,True)
 		self.draw()
 
-	def addData(self, x_s, y_s1, y_s2):
-		self.x.append(x_s)
-		self.y1.append(y_s1)
-		self.y2.append(y_s2)
+	# def addData(self, x_s, y_s1, y_s2):
+	# 	self.x.append(x_s)
+	# 	self.y1.append(y_s1)
+	# 	self.y2.append(y_s2)
 
 
 class PidInterface(QWidget):
@@ -80,7 +80,7 @@ class PidInterface(QWidget):
 	def init_serial(self):
 		self.bser = BinSerial(self.port_name, self.baud_rate)
 
-		self.read_thread = threading.Thread(target=self.read_variables)
+		self.read_thread = threading.Thread(target=self.read_variables, args=(self.bser, self.plot.x, self.plot.y1, self.plot.y2))
 		self.read_thread.start()
 
 	def init_parameters(self):
@@ -219,16 +219,15 @@ class PidInterface(QWidget):
 		# Write some data to the arduino
 		self.bser.write(['uint32']+['float']*4+['bool']*2, [self.sample_time, self.kp, self.ki, self.kd, self.setpoint, self.mode, self.anti_windup])
 
-	def read_variables(self):
+	def read_variables(self, bser, x, y1, y2):
 		i = 0
 		while (True):
 			i += 1
-			input, setpoint, output, integral = self.bser.read(['float']*4)
-			self.plot.addData(i,input,setpoint)
-			self.input_edit.setText(str(input))
-			self.setpoint_edit.setText(str(setpoint))
-			self.output_edit.setText(str(output))
-			self.integral_edit.setText(str(integral))
+			input, setpoint, output, integral = bser.read(['float']*4)
+			(i,input,setpoint)
+			x.append(i)
+			y1.append(input)
+			y2.append(setpoint)
 
 
 if __name__ == '__main__':

@@ -5,9 +5,9 @@ baud_rate: 115200
 # Sample time in milliseconds
 sample_time: 10
 # PID coefficients
-kp: 2
-ki: 0.3
-kd: 5
+kp: 0.02
+ki: 0
+kd: 0
 # Reference
 setpoint: 1200
 mode: true

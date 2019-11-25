@@ -3,15 +3,15 @@
 ## Information à rajouter
 
 - [ ] PidInterface
-	- [ ] Generalise BeautifulPlot
-		- [ ] Multiple subplots
-		- [ ] Multiple lines
-		- [ ] Give array of subplots, lines, labels
-	- [ ] Remove QLineEdit and add plot of output and integral instead
-	- [ ] Add button to reset integral
-	- [ ] Immediate effect of mode and anti_windup checkbox
-		- [ ] disable pid
-	- [x] ~join read thread when closing UI~ Made the read thread a daemon
+    - [ ] Generalise BeautifulPlot
+        - [ ] Multiple subplots
+        - [ ] Multiple lines
+        - [ ] Give array of subplots, lines, labels
+    - [ ] Remove QLineEdit and add plot of output and integral instead
+    - [ ] Add button to reset integral
+    - [ ] Immediate effect of mode and anti_windup checkbox
+        - [ ] disable pid
+    - [x] ~join read thread when closing UI~ Made the read thread a daemon
 - [ ] Remplacer ne pas toucher le moteur par ne pas bloquer
 - [ ] Explication serial monitor
 - [ ] réduction + pas par tour réduit ou non réduit
@@ -89,19 +89,19 @@ Ce fichier est situé dans le dossier `/include`, on y trouve toutes les fonctio
 #include "board.h"
 
 void setup() {
-	//Déclaration en output des deux leds du miniKiwi
-	pinMode(LED_DEBUG, OUTPUT);
-	pinMode(LED_TEENSY, OUTPUT);
+    //Déclaration en output des deux leds du miniKiwi
+    pinMode(LED_DEBUG, OUTPUT);
+    pinMode(LED_TEENSY, OUTPUT);
 }
 
 void loop() {
-	//Ce programme fait clignoter les deux LED de façon alternée
-	digitalWrite(LED_DEBUG, HIGH);
-	delay(300);
-	digitalWrite(LED_TEENSY, HIGH);
-	digitalWrite(LED_DEBUG, LOW);
-	delay(300);
-	digitalWrite(LED_TEENSY, LOW);
+    //Ce programme fait clignoter les deux LED de façon alternée
+    digitalWrite(LED_DEBUG, HIGH);
+    delay(300);
+    digitalWrite(LED_TEENSY, HIGH);
+    digitalWrite(LED_DEBUG, LOW);
+    delay(300);
+    digitalWrite(LED_TEENSY, LOW);
 
 }
 ```
@@ -151,29 +151,29 @@ Le driver sert d'interface entre la teensy et le moteur en fournissant un circui
 #include "board.h"
 
 void setup() {
-	//Déclaration en output des deux entrées du driver de moteur 1
-	pinMode(IN1_1, OUTPUT);
-	pinMode(IN2_1, OUTPUT);
+    //Déclaration en output des deux entrées du driver de moteur 1
+    pinMode(IN1_1, OUTPUT);
+    pinMode(IN2_1, OUTPUT);
 }
 
 void loop() {
-	//Ce programme fait tourner le moteur dans un sens, l'arrête, puis le fait tourner dans le sens inverse
+    //Ce programme fait tourner le moteur dans un sens, l'arrête, puis le fait tourner dans le sens inverse
 
-	digitalWrite(IN1_1, LOW); //Ligne 1 du tableau
-	digitalWrite(IN2_1, HIGH);
-	delay(1000);
+    digitalWrite(IN1_1, LOW); //Ligne 1 du tableau
+    digitalWrite(IN2_1, HIGH);
+    delay(1000);
 
-	digitalWrite(IN1_1, LOW); //Ligne 3
-	digitalWrite(IN2_1, LOW);
-	delay(1000);
+    digitalWrite(IN1_1, LOW); //Ligne 3
+    digitalWrite(IN2_1, LOW);
+    delay(1000);
 
-	digitalWrite(IN1_1, HIGH); //Ligne 2
-	digitalWrite(IN2_1, LOW);
-	delay(1000);
+    digitalWrite(IN1_1, HIGH); //Ligne 2
+    digitalWrite(IN2_1, LOW);
+    delay(1000);
 
-	digitalWrite(IN1_1, LOW); //Ligne 3
-	digitalWrite(IN2_1, LOW);
-	delay(1000);
+    digitalWrite(IN1_1, LOW); //Ligne 3
+    digitalWrite(IN2_1, LOW);
+    delay(1000);
 
 }
 ```
@@ -196,24 +196,24 @@ La fonction `analogWrite` va faire varier la tension de 0 à 12V, pour des valeu
 #include "board.h"
 
 void setup() {
-	//Déclaration en output des deux entrées du driver de moteur 1
-	pinMode(IN1_1, OUTPUT);
-	pinMode(IN2_1, OUTPUT);
+    //Déclaration en output des deux entrées du driver de moteur 1
+    pinMode(IN1_1, OUTPUT);
+    pinMode(IN2_1, OUTPUT);
 }
 
 void loop() {
-	//fait avancer le moteur à une vitesse progressivement plus élevée puis l'arrête, et pause pendant 1 seconde.
+    //fait avancer le moteur à une vitesse progressivement plus élevée puis l'arrête, et pause pendant 1 seconde.
 
-	digitalWrite(IN1_1, LOW);
+    digitalWrite(IN1_1, LOW);
 
-	for (int k = 0; k<= 255; k++){
-		analogWrite(IN2_1, k);
-		delay(50);
-	}
+    for (int k = 0; k<= 255; k++){
+        analogWrite(IN2_1, k);
+        delay(50);
+    }
 
-	digitalWrite(IN1_1, LOW); //Ligne 3
-	digitalWrite(IN2_1, LOW);
-	delay(1000);
+    digitalWrite(IN1_1, LOW); //Ligne 3
+    digitalWrite(IN2_1, LOW);
+    delay(1000);
 
 }
 ```
@@ -241,17 +241,17 @@ Encoder encoder(A_1, B_1);
 int32_t position = 0;
 
 void setup() {
-	// On initialise la liaison série et on attend qu'elle s'établisse
-	Serial.begin(9600);
-	delay(2000);
+    // On initialise la liaison série et on attend qu'elle s'établisse
+    Serial.begin(9600);
+    delay(2000);
 
-	while(!Serial.available()); // Appuyer sur une touche pour continuer
+    while(!Serial.available()); // Appuyer sur une touche pour continuer
 }
 
 void loop() {
-	position = encoder.read(); //On lit la valeur de la position et on la stocke dans position
-	Serial.println(position);
-	delay(100);
+    position = encoder.read(); //On lit la valeur de la position et on la stocke dans position
+    Serial.println(position);
+    delay(100);
 }
 
 ```
@@ -279,18 +279,18 @@ int32_t position = 0;
 Motor motor(IN1_1, IN2_1);
 
 void setup() {
-	// On initialise la liaison série et on attend qu'elle s'établisse
-	Serial.begin(9600);
-	delay(2000);
+    // On initialise la liaison série et on attend qu'elle s'établisse
+    Serial.begin(9600);
+    delay(2000);
 
-	while(!Serial.available()); // Appuyer sur une touche pour continuer
-	motor.setPwm(127);
+    while(!Serial.available()); // Appuyer sur une touche pour continuer
+    motor.setPwm(127);
 }
 
 void loop() {
-	position = encoder.read();
-	Serial.println(position);
-	delay(100);
+    position = encoder.read();
+    Serial.println(position);
+    delay(100);
 }
 ```
 
@@ -319,37 +319,15 @@ Vous disposez de :
 - [ ] Anti-Windup
 - [ ] PID Cascade
 - [ ] Période d'échantillonnage effet
+- [ ] Jitter
 
 ![pid.png](pid.png)
 
 Le terme _P_ est proportionnel à l'erreur.
 
-Points forts:
-- Temps de montée diminué
-- Erreur statique diminué
-
-Points faibles:
-- Dépassement augmente
-- Stabilité dégradée
-
 Le terme _I_ intègre l'erreur.
 
-Points forts:
-- Erreur statique éliminée
-- Temps de montée diminué
-- Temps de réponse diminué
-
-Points faibles:
-- Dépassement augmenté
-- Stabilité dégradée
-
 Le terme _D_ dérive le signal et permet d'amortir
-
-Points forts:
-- Stabilité améliorée
-
-Points faibles:
--
 
 Plus un terme est augmenté plus l'effet est important
 
@@ -374,6 +352,9 @@ Avec une erreur plus petite, le terme _I_ peut être augmenté
 
 - Permet d'activer le terme _I_ uniquement dans la zone linéaire, on n'en a pas besoin pendant le temps de montée c'est le terme _P_ qui s'en occupe.
 
+<details>
+    <summary>Cliquer pour afficher le code</summary>
+
 ```c++
 #include <Arduino.h>
 #include <Encoder.h>
@@ -384,21 +365,21 @@ Avec une erreur plus petite, le terme _I_ peut être augmenté
 
 // Réglages du PID
 typedef struct {
-	uint32_t sample_time;
-	float kp;
-	float ki;
-	float kd;
-	float setpoint;
-	bool mode;
-	bool anti_windup;
+    uint32_t sample_time;
+    float kp;
+    float ki;
+    float kd;
+    float setpoint;
+    bool mode;
+    bool anti_windup;
 } settings_t;
 
 // Variables du PID
 typedef struct {
-	float input;
-	float setpoint;
-	float output;
-	float integral;
+    float input;
+    float setpoint;
+    float output;
+    float integral;
 } variables_t;
 
 settings_t settings = {10, 0, 0, 0, 0, false, true}; // Réglages du PID
@@ -415,51 +396,55 @@ Encoder encoder(A_1, B_1); // Initialise encoder
 PID pid(0, 0, 0); // Initialise pid
 
 void setup() {
-	Serial.begin(9600); // Initialise Serial communication
-	while (!Serial); // Attend que la liaison soit établie
+    Serial.begin(9600); // Initialise Serial communication
+    while (!Serial); // Attend que la liaison soit établie
 
-	// Initialise LED de debug
-	pinMode(LED_BUILTIN, OUTPUT);
-	digitalWrite(LED_BUILTIN, HIGH);
+    // Initialise LED de debug
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
 
-	time = millis() - settings.sample_time; // Initialise le temps
+    time = millis() - settings.sample_time; // Initialise le temps
 }
 
 void loop() {
-	// Éxécute les instruction toutes les périodes d'échantillonnages
-	if (millis() - time > settings.sample_time) {
-		time = millis();
+    // Éxécute les instruction toutes les périodes d'échantillonnages
+    if (millis() - time > settings.sample_time) {
+        time = millis();
 
-		// Calcul et applique le PID
-		variables.input = encoder.read(); // Lit l'entrée
+        // Calcul et applique le PID
+        variables.input = encoder.read(); // Lit l'entrée
 
-		pid.setInput(variables.input); // Met à jour l'entrée du PID
-		pid.compute(); // Calcul le PID
+        pid.setInput(variables.input); // Met à jour l'entrée du PID
+        pid.compute(); // Calcul le PID
 
-		variables.integral = pid.getIntegral(); // Lit le terme intégral
-		variables.output = pid.getOutput(); // Lit la sortie
-		motor.setPwm(variables.output); // Applique la sortie
+        variables.integral = pid.getIntegral(); // Lit le terme intégral
+        variables.output = pid.getOutput(); // Lit la sortie
+        motor.setPwm(variables.output); // Applique la sortie
 
-		// Envoie les variables du PID à pid_interface.py
-		writeData(&variables, variables_size);
+        // Envoie les variables du PID à pid_interface.py
+        writeData(&variables, variables_size);
 
-		// Met à jour les réglages du PID si réception de nouveaux réglages
-		if (Serial.available()) {
-			digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // Change l'état de la led
-			readData(&settings, settings_size); // Reçoit les réglages
+        // Met à jour les réglages du PID si réception de nouveaux réglages
+        if (Serial.available()) {
+            digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // Change l'état de la led
+            readData(&settings, settings_size); // Reçoit les réglages
 
-			// Applique les réglages
-			pid.setMode(settings.mode);
-			pid.setAntiWindup(settings.anti_windup);
-			pid.setTunings(settings.kp, settings.ki, settings.kd);
-			pid.setSetpoint(settings.setpoint);
-			variables.setpoint = settings.setpoint;
-		}
-	}
+            // Applique les réglages
+            pid.setMode(settings.mode);
+            pid.setAntiWindup(settings.anti_windup);
+            pid.setTunings(settings.kp, settings.ki, settings.kd);
+            pid.setSetpoint(settings.setpoint);
+            variables.setpoint = settings.setpoint;
+        }
+    }
 }
 ```
+</details>
 
 ### Cascade PID
+
+<details>
+    <summary>Cliquer pour afficher le code</summary>
 
 ```c++
 #include <Arduino.h>
@@ -472,21 +457,21 @@ void loop() {
 float last_position;
 // Réglages du PID
 typedef struct {
-	uint32_t sample_time;
-	float kp;
-	float ki;
-	float kd;
-	float setpoint;
-	bool mode;
-	bool anti_windup;
+    uint32_t sample_time;
+    float kp;
+    float ki;
+    float kd;
+    float setpoint;
+    bool mode;
+    bool anti_windup;
 } settings_t;
 
 // Variables du PID
 typedef struct {
-	float input;
-	float setpoint;
-	float output;
-	float integral;
+    float input;
+    float setpoint;
+    float output;
+    float integral;
 } variables_t;
 
 settings_t settings = {10, 0, 0, 0, 0, false, true}; // Réglages du PID
@@ -504,61 +489,62 @@ PID speed_pid(60, 35, 0); // Initialise pid
 PID position_pid(0, 0, 0); // Initialise pid
 
 void setup() {
-	Serial.begin(9600); // Initialise Serial communication
-	while (!Serial); // Attend que la liaison soit établie
+    Serial.begin(9600); // Initialise Serial communication
+    while (!Serial); // Attend que la liaison soit établie
 
-	// Initialise LED de debug
-	pinMode(LED_BUILTIN, OUTPUT);
-	digitalWrite(LED_BUILTIN, HIGH);
+    // Initialise LED de debug
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
 
-	// while(!Serial.available()); // Attend une consigne de pid_interface.py
+    // while(!Serial.available()); // Attend une consigne de pid_interface.py
 
-	time = millis() - settings.sample_time; // Initialise le temps
+    time = millis() - settings.sample_time; // Initialise le temps
 }
 
 void loop() {
-	// Éxécute les instruction toutes les périodes d'échantillonnages
-	if (millis() - time > settings.sample_time) {
-	time = millis();
-	last_position = position_variables.input;
-	position_variables.input = encoder.read();
-		// Calcul et applique le PID
-	speed_variables.input = (position_variables.input-last_position)/1.2/settings.sample_time;
+    // Éxécute les instruction toutes les périodes d'échantillonnages
+    if (millis() - time > settings.sample_time) {
+    time = millis();
+    last_position = position_variables.input;
+    position_variables.input = encoder.read();
+        // Calcul et applique le PID
+    speed_variables.input = (position_variables.input-last_position)/1.2/settings.sample_time;
 
-	  // Lit l'entrée
-	position_pid.setInput(position_variables.input);
-	position_pid.compute(); // Calcul le PID
-	speed_variables.setpoint = position_variables.output = position_pid.getOutput();
-	position_variables.integral = position_pid.getIntegral();
+      // Lit l'entrée
+    position_pid.setInput(position_variables.input);
+    position_pid.compute(); // Calcul le PID
+    speed_variables.setpoint = position_variables.output = position_pid.getOutput();
+    position_variables.integral = position_pid.getIntegral();
 
-	speed_pid.setSetpoint(speed_variables.setpoint);
-		speed_pid.setInput(speed_variables.input); // Met à jour l'entrée du PID
-		speed_pid.compute(); // Calcul le PID
+    speed_pid.setSetpoint(speed_variables.setpoint);
+        speed_pid.setInput(speed_variables.input); // Met à jour l'entrée du PID
+        speed_pid.compute(); // Calcul le PID
 
-		speed_variables.integral = speed_pid.getIntegral(); // Lit le terme intégral
-		speed_variables.output = speed_pid.getOutput(); // Lit la sortie
+        speed_variables.integral = speed_pid.getIntegral(); // Lit le terme intégral
+        speed_variables.output = speed_pid.getOutput(); // Lit la sortie
 
-		motor.setPwm(speed_variables.output); // Applique la sortie
+        motor.setPwm(speed_variables.output); // Applique la sortie
 
-		// Envoie les variables du PID à pid_interface.py
-		writeData(&position_variables, variables_size);
+        // Envoie les variables du PID à pid_interface.py
+        writeData(&position_variables, variables_size);
 
-		// Met à jour les réglages du PID si reData(&variables, variables_size);éception de nouveaux réglages
-		if (Serial.available()) {
-			digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // Change l'état de la led
-			readData(&settings, settings_size); // Reçoit les réglages
+        // Met à jour les réglages du PID si reData(&variables, variables_size);éception de nouveaux réglages
+        if (Serial.available()) {
+            digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // Change l'état de la led
+            readData(&settings, settings_size); // Reçoit les réglages
 
-			// Applique les réglages
-			speed_pid.setMode(settings.mode);
-			position_pid.setMode(settings.mode);
-			position_pid.setAntiWindup(settings.anti_windup);
-			position_pid.setTunings(settings.kp, settings.ki, settings.kd);
-			position_pid.setSetpoint(settings.setpoint);
-			position_variables.setpoint = settings.setpoint;
-		}
-	}
+            // Applique les réglages
+            speed_pid.setMode(settings.mode);
+            position_pid.setMode(settings.mode);
+            position_pid.setAntiWindup(settings.anti_windup);
+            position_pid.setTunings(settings.kp, settings.ki, settings.kd);
+            position_pid.setSetpoint(settings.setpoint);
+            position_variables.setpoint = settings.setpoint;
+        }
+    }
 }
 ```
+</details>
 
 ## Ressources
 - [PID controller - Wikipédia](https://en.wikipedia.org/wiki/PID_controller)

@@ -25,7 +25,7 @@ typedef struct {
     float integral;
 } variables_t;
 
-settings_t settings = {10, 0, 0, 0, 0, false, true}; // Réglages du PID
+settings_t settings = {1, 0, 0, 0, 0, false, true}; // Réglages du PID
 size_t settings_size = 22;
 
 variables_t position_variables = {0, 0, 0, 0}, speed_variables = {0, 0, 0, 0};
@@ -36,8 +36,8 @@ uint32_t time; // Temps de la dernière période d'échantillonnage
 Motor motor(IN1_1, IN2_1); // Initialise motor
 Encoder encoder(A_1, B_1); // Initialise encoder
 
-PID speed_pid(60, 35, 0); // Initialise pid
-PID position_pid(0, 0, 0); // Initialise pid
+PID speed_pid(50, 0.5, 0); // Initialise pid
+PID position_pid(1, 0, 12); // Initialise pid
 
 void setup() {
     Serial.begin(9600); // Initialise Serial communication
@@ -49,17 +49,17 @@ void setup() {
 
     // while(!Serial.available()); // Attend une consigne de pid_interface.py
 
-    time = millis() - settings.sample_time; // Initialise le temps
+    time = micros()/1000. - settings.sample_time; // Initialise le temps
 }
 
 void loop() {
     // Éxécute les instruction toutes les périodes d'échantillonnages
-    if (millis() - time > settings.sample_time) {
-    time = millis();
+    if (micros()/1000. - time > settings.sample_time) {
+    time = micros()/1000;
     last_position = position_variables.input;
     position_variables.input = encoder.read();
         // Calcul et applique le PID
-    speed_variables.input = (position_variables.input-last_position)/1.2/settings.sample_time;
+    speed_variables.input = (position_variables.input-last_position)/1200.*1000./settings.sample_time;
 
       // Lit l'entrée
     position_pid.setInput(position_variables.input);

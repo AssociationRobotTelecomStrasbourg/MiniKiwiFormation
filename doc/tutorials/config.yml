@@ -3,12 +3,12 @@ port_name: '/dev/ttyACM0'
 # Baud rate of the serial connection
 baud_rate: 115200
 # Sample time in milliseconds
-sample_time: 10
+sample_time: 1
 # PID coefficients
-kp: 0.02
+kp: 1
 ki: 0
-kd: 0
+kd: 12
 # Reference
-setpoint: 1200
+max_setpoint: 1200
 mode: true
 anti_windup: true

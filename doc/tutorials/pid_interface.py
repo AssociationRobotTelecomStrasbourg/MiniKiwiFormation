@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from PyQt5.QtWidgets import (QWidget, QPushButton, QSpinBox, QDoubleSpinBox, QVBoxLayout, QLineEdit, QCheckBox, QHBoxLayout, QFormLayout, QGroupBox, QApplication, QSizePolicy)
+from PyQt5.QtWidgets import (QWidget, QPushButton, QSpinBox, QDoubleSpinBox, QVBoxLayout, QLineEdit, QCheckBox, QSlider, QHBoxLayout, QFormLayout, QGroupBox, QApplication, QSizePolicy)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
@@ -18,15 +18,15 @@ import collections
 class BeautifulPlot(FigureCanvas):
     def __init__(self, parent=None):
         fig = Figure()
-        self.axes1 = fig.add_subplot(121)
-        self.axes2 = fig.add_subplot(222)
-        self.axes3 = fig.add_subplot(224)
+        self.axes1 = fig.add_subplot(111)
+        # self.axes2 = fig.add_subplot(222)
+        # self.axes3 = fig.add_subplot(224)
 
 
         self.p1, = self.axes1.plot([], [], label='input')
         self.p2, = self.axes1.plot([], [], label='setpoint')
-        self.p3, = self.axes2.plot([], [], label='integral')
-        self.p4, = self.axes3.plot([], [], label='output')
+        # self.p3, = self.axes2.plot([], [], label='integral')
+        # self.p4, = self.axes3.plot([], [], label='output')
 
         super().__init__(fig)
         self.setParent(parent)
@@ -35,7 +35,7 @@ class BeautifulPlot(FigureCanvas):
         timer.timeout.connect(self.update_figure)
         timer.start(60)
 
-        nb_point = 200
+        nb_point = 1000
 
         self.x = collections.deque([0]*nb_point, nb_point)
         self.y1 = collections.deque([0]*nb_point, nb_point)
@@ -44,14 +44,15 @@ class BeautifulPlot(FigureCanvas):
         self.d2 = [self.x, self.y2]
         self.axes1.set_title('Response')
         self.axes1.legend()
-        self.axes2.legend()
-        self.axes3.legend()
+        self.axes1.set_ylim(-100, 1300)
+        # self.axes2.legend()
+        # self.axes3.legend()
 
     def update_figure(self):
         self.p1.set_data(self.d1)
         self.p2.set_data(self.d2)
         self.axes1.relim()
-        self.axes1.autoscale_view(True,True,True)
+        self.axes1.autoscale_view(True,True,False)
         self.draw()
 
 
@@ -77,7 +78,7 @@ class PidInterface(QWidget):
         self.ki = config['ki']
         self.kd = config['kd']
         self.sample_time = config['sample_time']
-        self.setpoint = config['setpoint']
+        self.max_setpoint = config['max_setpoint']
         self.mode = config['mode']
         self.anti_windup = config['anti_windup']
 
@@ -95,6 +96,7 @@ class PidInterface(QWidget):
 
     def set_setpoint(self, new_setpoint):
         self.setpoint = new_setpoint
+        self.sent_parameters()
 
     def set_mode(self, new_mode):
         self.mode = new_mode
@@ -131,11 +133,11 @@ class PidInterface(QWidget):
         self.kd_spin.setValue(self.kd)
         self.kd_spin.valueChanged.connect(self.set_kd)
 
-        self.setpoint_spin = QDoubleSpinBox()
-        self.setpoint_spin.setMinimum(0)
-        self.setpoint_spin.setMaximum(float('inf'))
-        self.setpoint_spin.setValue(self.setpoint)
-        self.setpoint_spin.valueChanged.connect(self.set_setpoint)
+        self.setpoint_slider = QSlider()
+        self.setpoint_slider.setMinimum(0)
+        self.setpoint_slider.setMaximum(self.max_setpoint)
+        self.setpoint_slider.setValue(0)
+        self.setpoint_slider.sliderMoved.connect(self.set_setpoint)
 
         self.mode_check = QCheckBox()
         self.mode_check.setChecked(self.mode)
@@ -150,7 +152,7 @@ class PidInterface(QWidget):
         parameters_layout.addRow('kp', self.kp_spin)
         parameters_layout.addRow('ki', self.ki_spin)
         parameters_layout.addRow('kd', self.kd_spin)
-        parameters_layout.addRow('setpoint', self.setpoint_spin)
+        parameters_layout.addRow('setpoint', self.setpoint_slider)
         parameters_layout.addRow('mode', self.mode_check)
         parameters_layout.addRow('anti_windup', self.anti_windup_check)
 
@@ -160,33 +162,9 @@ class PidInterface(QWidget):
         apply_button = QPushButton('Apply')
         apply_button.clicked.connect(self.sent_parameters)
 
-        # Variables
-        self.input_edit = QLineEdit()
-        self.input_edit.setReadOnly(True)
-
-        self.setpoint_edit = QLineEdit()
-        self.setpoint_edit.setReadOnly(True)
-
-        self.output_edit = QLineEdit()
-        self.output_edit.setReadOnly(True)
-
-        self.integral_edit = QLineEdit()
-        self.integral_edit.setReadOnly(True)
-
-
-        variables_layout = QFormLayout()
-        variables_layout.addRow('input', self.input_edit)
-        variables_layout.addRow('setpoint', self.setpoint_edit)
-        variables_layout.addRow('output', self.output_edit)
-        variables_layout.addRow('integral', self.integral_edit)
-
-        variables_group = QGroupBox('Variables')
-        variables_group.setLayout(variables_layout)
-
         pid_layout = QVBoxLayout()
         pid_layout.addWidget(parameters_group)
         pid_layout.addWidget(apply_button)
-        pid_layout.addWidget(variables_group)
         pid_layout.addStretch()
 
         # Display

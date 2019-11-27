@@ -22,15 +22,20 @@ class BeautifulPlot(FigureCanvas):
         super().__init__(fig)
         self.setParent(parent)
 
+        with open('plotter.yml', 'r') as plotter_yml:
+            plotter = yaml.safe_load(plotter_yml)
+
         # Add subplots
-        self.axes_position = fig.add_subplot(121)
-        self.axes_speed = fig.add_subplot(122)
+        self.axes = []
+        for p in plotter:
+            self.axes.append(fig.add_subplot(p["subplot"]))
 
         # Add plots
-        self.plot_position_input, = self.axes_position.plot([], [], label='input')
-        self.plot_position_setpoint, = self.axes_position.plot([], [], label='setpoint')
-        self.plot_speed_input, = self.axes_speed.plot([], [], label='input')
-        self.plot_speed_setpoint, = self.axes_speed.plot([], [], label='setpoint')
+        self.plots = []
+        for i, p in enumerate(plotter):
+            self.plots.append([])
+            for label in p["plots"]:
+                self.plots[i].append(self.axes[i].plot([], [], label=label)[0])
 
         nb_point = 1000
 
@@ -48,28 +53,25 @@ class BeautifulPlot(FigureCanvas):
         self.data_speed_setpoint = [self.time, self.deque_speed_setpoint]
 
         # Add legend
-        self.axes_position.set_title('Position')
-        self.axes_position.legend()
-        self.axes_position.set_ylim(-100, 1300)
-
-        self.axes_speed.set_title('Speed')
-        self.axes_speed.legend()
-        self.axes_speed.set_ylim(-6, 6)
+        for i, p in enumerate(plotter):
+            self.axes[i].set_title(p["name"])
+            self.axes[i].legend()
+            self.axes[i].set_ylim(p["min"], p["max"])
 
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.update_figure)
         timer.start(60)
 
     def update_figure(self):
-        self.plot_position_input.set_data(self.data_position_input)
-        self.plot_position_setpoint.set_data(self.data_position_setpoint)
-        self.plot_speed_input.set_data(self.data_speed_input)
-        self.plot_speed_setpoint.set_data(self.data_speed_setpoint)
+        self.plots[0][0].set_data(self.data_position_input)
+        self.plots[0][1].set_data(self.data_position_setpoint)
+        self.plots[1][0].set_data(self.data_speed_input)
+        self.plots[1][1].set_data(self.data_speed_setpoint)
 
-        self.axes_position.relim()
-        self.axes_position.autoscale_view(True,True,False)
-        self.axes_speed.relim()
-        self.axes_speed.autoscale_view(True,True,False)
+        self.axes[0].relim()
+        self.axes[0].autoscale_view(True,True,False)
+        self.axes[1].relim()
+        self.axes[1].autoscale_view(True,True,False)
         self.draw()
 
 

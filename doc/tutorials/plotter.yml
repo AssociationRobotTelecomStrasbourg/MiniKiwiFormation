@@ -1,0 +1,16 @@
+-
+    subplot: 121
+    name: Position1
+    plots:
+        - input2
+        - setpoint3
+    min: -100
+    max: 1300
+-
+    subplot: 122
+    name: Speed4
+    plots:
+        - input5
+        - setpoint6
+    min: -6
+    max: 6

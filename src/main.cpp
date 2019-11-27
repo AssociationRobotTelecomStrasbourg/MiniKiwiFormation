@@ -47,6 +47,8 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 
+    position_pid.setOutputLimits(-5, 5);
+
     // while(!Serial.available()); // Attend une consigne de pid_interface.py
 
     time = micros()/1000. - settings.sample_time; // Initialise le temps
@@ -78,6 +80,7 @@ void loop() {
 
         // Envoie les variables du PID à pid_interface.py
         writeData(&position_variables, variables_size);
+        writeData(&speed_variables, variables_size);
 
         // Met à jour les réglages du PID si reData(&variables, variables_size);éception de nouveaux réglages
         if (Serial.available()) {

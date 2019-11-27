@@ -18,41 +18,58 @@ import collections
 class BeautifulPlot(FigureCanvas):
     def __init__(self, parent=None):
         fig = Figure()
-        self.axes1 = fig.add_subplot(111)
-        # self.axes2 = fig.add_subplot(222)
-        # self.axes3 = fig.add_subplot(224)
-
-
-        self.p1, = self.axes1.plot([], [], label='input')
-        self.p2, = self.axes1.plot([], [], label='setpoint')
-        # self.p3, = self.axes2.plot([], [], label='integral')
-        # self.p4, = self.axes3.plot([], [], label='output')
 
         super().__init__(fig)
         self.setParent(parent)
+
+        # Add subplots
+        self.axes_position = fig.add_subplot(121)
+        self.axes_speed = fig.add_subplot(122)
+
+        # Add plots
+        self.plot_position_input, = self.axes_position.plot([], [], label='input')
+        self.plot_position_setpoint, = self.axes_position.plot([], [], label='setpoint')
+        self.plot_speed_input, = self.axes_speed.plot([], [], label='input')
+        self.plot_speed_setpoint, = self.axes_speed.plot([], [], label='setpoint')
+
+        nb_point = 1000
+
+        # Declare queue
+        self.time = collections.deque([0]*nb_point, nb_point)
+        self.deque_position_input = collections.deque([0]*nb_point, nb_point)
+        self.deque_position_setpoint = collections.deque([0]*nb_point, nb_point)
+        self.deque_speed_input = collections.deque([0]*nb_point, nb_point)
+        self.deque_speed_setpoint = collections.deque([0]*nb_point, nb_point)
+
+        # Declare plot data
+        self.data_position_input = [self.time, self.deque_position_input]
+        self.data_position_setpoint = [self.time, self.deque_position_setpoint]
+        self.data_speed_input = [self.time, self.deque_speed_input]
+        self.data_speed_setpoint = [self.time, self.deque_speed_setpoint]
+
+        # Add legend
+        self.axes_position.set_title('Position')
+        self.axes_position.legend()
+        self.axes_position.set_ylim(-100, 1300)
+
+        self.axes_speed.set_title('Speed')
+        self.axes_speed.legend()
+        self.axes_speed.set_ylim(-6, 6)
 
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.update_figure)
         timer.start(60)
 
-        nb_point = 1000
-
-        self.x = collections.deque([0]*nb_point, nb_point)
-        self.y1 = collections.deque([0]*nb_point, nb_point)
-        self.y2 = collections.deque([0]*nb_point, nb_point)
-        self.d1 = [self.x, self.y1]
-        self.d2 = [self.x, self.y2]
-        self.axes1.set_title('Response')
-        self.axes1.legend()
-        self.axes1.set_ylim(-100, 1300)
-        # self.axes2.legend()
-        # self.axes3.legend()
-
     def update_figure(self):
-        self.p1.set_data(self.d1)
-        self.p2.set_data(self.d2)
-        self.axes1.relim()
-        self.axes1.autoscale_view(True,True,False)
+        self.plot_position_input.set_data(self.data_position_input)
+        self.plot_position_setpoint.set_data(self.data_position_setpoint)
+        self.plot_speed_input.set_data(self.data_speed_input)
+        self.plot_speed_setpoint.set_data(self.data_speed_setpoint)
+
+        self.axes_position.relim()
+        self.axes_position.autoscale_view(True,True,False)
+        self.axes_speed.relim()
+        self.axes_speed.autoscale_view(True,True,False)
         self.draw()
 
 
@@ -66,12 +83,12 @@ class PidInterface(QWidget):
     def init_serial(self):
         self.bser = BinSerial(self.port_name, self.baud_rate)
 
-        self.read_thread = threading.Thread(target=self.read_variables, args=(self.bser, self.plot.x, self.plot.y1, self.plot.y2), daemon=True)
+        self.read_thread = threading.Thread(target=self.read_variables, args=(self.bser, self.plot.time, self.plot.deque_position_input, self.plot.deque_position_setpoint, self.plot.deque_speed_input, self.plot.deque_speed_setpoint), daemon=True)
         self.read_thread.start()
 
     def init_parameters(self):
-        with open('config.yml', 'r') as f:
-            config = yaml.load(f.read())
+        with open('config.yml', 'r') as config_yml:
+            config = yaml.safe_load(config_yml)
         self.port_name = config['port_name']
         self.baud_rate = config['baud_rate']
         self.kp = config['kp']
@@ -133,7 +150,7 @@ class PidInterface(QWidget):
         self.kd_spin.setValue(self.kd)
         self.kd_spin.valueChanged.connect(self.set_kd)
 
-        self.setpoint_slider = QSlider()
+        self.setpoint_slider = QSlider(QtCore.Qt.Horizontal)
         self.setpoint_slider.setMinimum(0)
         self.setpoint_slider.setMaximum(self.max_setpoint)
         self.setpoint_slider.setValue(0)
@@ -182,15 +199,16 @@ class PidInterface(QWidget):
         # Write some data to the arduino
         self.bser.write(['uint32']+['float']*4+['bool']*2, [self.sample_time, self.kp, self.ki, self.kd, self.setpoint, self.mode, self.anti_windup])
 
-    def read_variables(self, bser, x, y1, y2):
+    def read_variables(self, bser, time, deque_position_input, deque_position_setpoint, deque_speed_input, deque_speed_setpoint):
         i = 0
         while (True):
             i += 1
-            input, setpoint, output, integral = bser.read(['float']*4)
-            (i,input,setpoint)
-            x.append(i)
-            y1.append(input)
-            y2.append(setpoint)
+            position_input, position_setpoint, position_output, position_integral, speed_input, speed_setpoint, speed_output, speed_integral = bser.read(['float']*8)
+            time.append(i)
+            deque_position_input.append(position_input)
+            deque_position_setpoint.append(position_setpoint)
+            deque_speed_input.append(speed_input)
+            deque_speed_setpoint.append(speed_setpoint)
 
 
 if __name__ == '__main__':

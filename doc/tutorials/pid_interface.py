@@ -23,55 +23,46 @@ class BeautifulPlot(FigureCanvas):
         self.setParent(parent)
 
         with open('plotter.yml', 'r') as plotter_yml:
-            plotter = yaml.safe_load(plotter_yml)
+            self.plotter = yaml.safe_load(plotter_yml)
 
         # Add subplots
-        self.axes = []
-        for p in plotter:
-            self.axes.append(fig.add_subplot(p["subplot"]))
+        self.axes = {}
 
         # Add plots
-        self.plots = []
-        for i, p in enumerate(plotter):
-            self.plots.append([])
-            for label in p["plots"]:
-                self.plots[i].append(self.axes[i].plot([], [], label=label)[0])
+        self.plots = {}
 
-        nb_point = 1000
+        self.nb_point = 1000
 
         # Declare queue
         self.time = collections.deque([0]*nb_point, nb_point)
-        self.deque_position_input = collections.deque([0]*nb_point, nb_point)
-        self.deque_position_setpoint = collections.deque([0]*nb_point, nb_point)
-        self.deque_speed_input = collections.deque([0]*nb_point, nb_point)
-        self.deque_speed_setpoint = collections.deque([0]*nb_point, nb_point)
+        self.deques = {}
 
         # Declare plot data
-        self.data_position_input = [self.time, self.deque_position_input]
-        self.data_position_setpoint = [self.time, self.deque_position_setpoint]
-        self.data_speed_input = [self.time, self.deque_speed_input]
-        self.data_speed_setpoint = [self.time, self.deque_speed_setpoint]
-
-        # Add legend
-        for i, p in enumerate(plotter):
-            self.axes[i].set_title(p["name"])
-            self.axes[i].legend()
-            self.axes[i].set_ylim(p["min"], p["max"])
+        self.data = {}
 
         timer = QtCore.QTimer(self)
         timer.timeout.connect(self.update_figure)
         timer.start(60)
 
-    def update_figure(self):
-        self.plots[0][0].set_data(self.data_position_input)
-        self.plots[0][1].set_data(self.data_position_setpoint)
-        self.plots[1][0].set_data(self.data_speed_input)
-        self.plots[1][1].set_data(self.data_speed_setpoint)
+    def add_subplot(self, pos, title, min, max):
+        self.axes[pos] = fig.add_subplot(pos)
+        self.axes[pos].set_title(title)
+        self.axes[pos].legend()
+        self.axes[pos].set_ylim(min, max)
 
-        self.axes[0].relim()
-        self.axes[0].autoscale_view(True,True,False)
-        self.axes[1].relim()
-        self.axes[1].autoscale_view(True,True,False)
+    def add_plot(self, pos, label):
+        self.plots[(pos, label)] = self.axes[pos].plot([], [], label=label)[0]
+        self.deques[(pos, label)] = collections.deque([0]*self.nb_point, self.nb_point)
+        self.data[(pos, label)] = [self.time, self.deques[(pos, label)]]
+
+    def update_figure(self):
+        for key in self.plots:
+            self.plots[key].set_data(self.data[key])
+
+        for key in self.axes:
+            self.axes[key].relim()
+            self.axes[key].autoscale_view(True,True,False)
+
         self.draw()
 
 
@@ -80,7 +71,7 @@ class PidInterface(QWidget):
         super().__init__()
         self.init_parameters()
         self.init_ui()
-        self.init_serial()
+        # self.init_serial()
 
     def init_serial(self):
         self.bser = BinSerial(self.port_name, self.baud_rate)

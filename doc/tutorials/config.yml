@@ -1,14 +1,76 @@
-# Port name of the serial port
-port_name: '/dev/ttyACM0'
-# Baud rate of the serial connection
-baud_rate: 115200
-# Sample time in milliseconds
-sample_time: 1
-# PID coefficients
-kp: 1
-ki: 0
-kd: 12
-# Reference
-max_setpoint: 1200
-mode: true
-anti_windup: true
+serial:
+    port: '/dev/ttyACM0'
+    baud: 115200
+data:
+    send:
+        -
+            name: 'Sample time'
+            type: 'uint32'
+            default: 1
+            min: 1
+            max: 1000
+        -
+            name: 'Kp'
+            type: 'float'
+            default: 1
+            min: 1
+            max: 1000
+        -
+            name: 'Ki'
+            type: 'float'
+            default: 1
+            min: 1
+            max: 1000
+        -
+            name: 'Kd'
+            type: 'float'
+            default: 1
+            min: 1
+            max: 1000
+        -
+            name: 'Setpoint'
+            type: 'float'
+            default: 1
+            min: 1
+            max: 1000
+        -
+            name: 'On/Off'
+            type: 'bool'
+            default: True
+        -
+            name: 'Anti Windup'
+            type: 'bool'
+            default: True
+    receive:
+        -
+            name: 'Input'
+            type: 'float'
+            subplot: 121
+        -
+            name: 'Setpoint'
+            type: 'float'
+            subplot: 121
+        -
+            name: 'Output'
+            type: 'float'
+            subplot: 222
+        -
+            name: 'Integral'
+            type: 'float'
+            subplot: 224
+plotter:
+    -
+        pos: 121
+        title: 'Input / Reference'
+        min: -100
+        max: 1300
+    -
+        pos: 222
+        title: 'Output'
+        min: -280
+        max: 280
+    -
+        pos: 224
+        title: 'Integral'
+        min: -1000
+        max: 1000

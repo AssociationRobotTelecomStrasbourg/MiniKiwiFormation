@@ -15,57 +15,6 @@ import threading
 import time
 import collections
 
-class BeautifulPlot(FigureCanvas):
-    def __init__(self, parent=None):
-        fig = Figure()
-
-        super().__init__(fig)
-        self.setParent(parent)
-
-        with open('plotter.yml', 'r') as plotter_yml:
-            self.plotter = yaml.safe_load(plotter_yml)
-
-        # Add subplots
-        self.axes = {}
-
-        # Add plots
-        self.plots = {}
-
-        self.nb_point = 1000
-
-        # Declare queue
-        self.time = collections.deque([0]*nb_point, nb_point)
-        self.deques = {}
-
-        # Declare plot data
-        self.data = {}
-
-        timer = QtCore.QTimer(self)
-        timer.timeout.connect(self.update_figure)
-        timer.start(60)
-
-    def add_subplot(self, pos, title, min, max):
-        self.axes[pos] = fig.add_subplot(pos)
-        self.axes[pos].set_title(title)
-        self.axes[pos].legend()
-        self.axes[pos].set_ylim(min, max)
-
-    def add_plot(self, pos, label):
-        self.plots[(pos, label)] = self.axes[pos].plot([], [], label=label)[0]
-        self.deques[(pos, label)] = collections.deque([0]*self.nb_point, self.nb_point)
-        self.data[(pos, label)] = [self.time, self.deques[(pos, label)]]
-
-    def update_figure(self):
-        for key in self.plots:
-            self.plots[key].set_data(self.data[key])
-
-        for key in self.axes:
-            self.axes[key].relim()
-            self.axes[key].autoscale_view(True,True,False)
-
-        self.draw()
-
-
 class PidInterface(QWidget):
     def __init__(self):
         super().__init__()

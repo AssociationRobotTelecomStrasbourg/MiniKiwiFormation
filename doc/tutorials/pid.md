@@ -504,19 +504,19 @@ void setup() {
 void loop() {
     // Éxécute les instruction toutes les périodes d'échantillonnages
     if (millis() - time > settings.sample_time) {
-    time = millis();
-    last_position = position_variables.input;
-    position_variables.input = encoder.read();
+        time = millis();
+        last_position = position_variables.input;
+        position_variables.input = encoder.read();
         // Calcul et applique le PID
-    speed_variables.input = (position_variables.input-last_position)/1.2/settings.sample_time;
+        speed_variables.input = (position_variables.input-last_position)/1.2/settings.sample_time;
 
-      // Lit l'entrée
-    position_pid.setInput(position_variables.input);
-    position_pid.compute(); // Calcul le PID
-    speed_variables.setpoint = position_variables.output = position_pid.getOutput();
-    position_variables.integral = position_pid.getIntegral();
+        // Lit l'entrée
+        position_pid.setInput(position_variables.input);
+        position_pid.compute(); // Calcul le PID
+        speed_variables.setpoint = position_variables.output = position_pid.getOutput();
+        position_variables.integral = position_pid.getIntegral();
 
-    speed_pid.setSetpoint(speed_variables.setpoint);
+        speed_pid.setSetpoint(speed_variables.setpoint);
         speed_pid.setInput(speed_variables.input); // Met à jour l'entrée du PID
         speed_pid.compute(); // Calcul le PID
 

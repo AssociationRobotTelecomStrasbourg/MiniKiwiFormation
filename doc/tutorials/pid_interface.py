@@ -4,16 +4,11 @@
 import sys
 from PyQt5.QtWidgets import (QWidget, QPushButton, QSpinBox, QDoubleSpinBox, QVBoxLayout, QLineEdit, QCheckBox, QSlider, QHBoxLayout, QFormLayout, QGroupBox, QApplication, QSizePolicy)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
-import matplotlib.animation as animation
-import numpy as np
 import yaml
 from PyQt5 import QtCore
-from binserial import BinSerial
 import threading
-import time
-import collections
+from binserial import BinSerial
+from beautifulplot import BeautifulPlot
 
 class PidInterface(QWidget):
     def __init__(self):

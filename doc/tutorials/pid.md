@@ -85,24 +85,24 @@ Pour utiliser ces noms il faut inclure le fichier `board.h`.
 Ce fichier est situé dans le dossier `/include`, on y trouve toutes les fonctionnalités de la carte, et les pins pour y accéder.
 
 ```c++
-
+#include <Arduino.h>
 #include "board.h"
 
 void setup() {
-    //Déclaration en output des deux leds du miniKiwi
+    // Règle les deux LEDs du miniKiwi en sortie
     pinMode(LED_DEBUG, OUTPUT);
     pinMode(LED_TEENSY, OUTPUT);
 }
 
 void loop() {
-    //Ce programme fait clignoter les deux LED de façon alternée
+    // Clignote les leds en alternées
+    digitalWrite(LED_TEENSY, LOW);
     digitalWrite(LED_DEBUG, HIGH);
     delay(300);
+
     digitalWrite(LED_TEENSY, HIGH);
     digitalWrite(LED_DEBUG, LOW);
     delay(300);
-    digitalWrite(LED_TEENSY, LOW);
-
 }
 ```
 
@@ -147,17 +147,17 @@ Le driver sert d'interface entre la teensy et le moteur en fournissant un circui
 
 
 ```c++
-
+#include <Arduino.h>
 #include "board.h"
 
 void setup() {
-    //Déclaration en output des deux entrées du driver de moteur 1
+    // Règle les deux entrées du driver du moteur 1 en sortie
     pinMode(IN1_1, OUTPUT);
     pinMode(IN2_1, OUTPUT);
 }
 
 void loop() {
-    //Ce programme fait tourner le moteur dans un sens, l'arrête, puis le fait tourner dans le sens inverse
+    // Tourne le moteur dans un sens puis dans l'autre avec des pauses
 
     digitalWrite(IN1_1, LOW); //Ligne 1 du tableau
     digitalWrite(IN2_1, HIGH);
@@ -192,27 +192,23 @@ Pour faire varier la vitesse du moteur, il suffit d'utiliser la logique précéd
 La fonction `analogWrite` va faire varier la tension de 0 à 12V, pour des valeurs de 0 à 255.
 
 ```c++
-
+#include <Arduino.h>
 #include "board.h"
 
 void setup() {
-    //Déclaration en output des deux entrées du driver de moteur 1
-    pinMode(IN1_1, OUTPUT);
-    pinMode(IN2_1, OUTPUT);
+    // Règle la IN1_1 toujours à 0
+    analogWrite(IN1_1, 0);
 }
 
 void loop() {
-    //fait avancer le moteur à une vitesse progressivement plus élevée puis l'arrête, et pause pendant 1 seconde.
-
-    digitalWrite(IN1_1, LOW);
-
-    for (int k = 0; k<= 255; k++){
-        analogWrite(IN2_1, k);
+    // Accélère le moteur
+    for (int k = 0; k <= 255; k++){
+        analogWrite(IN2_1, k); // Alterne entre Ligne 1 et 3
         delay(50);
     }
 
-    digitalWrite(IN1_1, LOW); //Ligne 3
-    digitalWrite(IN2_1, LOW);
+    // Arrête le moteur
+    analogWrite(IN2_1, 0);
     delay(1000);
 
 }
@@ -233,7 +229,7 @@ Les encodeurs utilisés la plupart du temps sont dit _"encodeurs à quadrature d
 _Il n'est pas important pour la formation de comprendre leur principe de fonctionnement_, vous pouvez cliquer [ici](https://www.pjrc.com/teensy/td_libs_Encoder.html) pour des explications sur la librairie que nous allons utiliser.
 
 ```c++
-
+#include <Arduino.h>
 #include <Encoder.h>
 #include "board.h"
 
@@ -268,7 +264,7 @@ Vous pouvez faire tourner le moteur à la main pour voir la position varier.
 Le code suivant fait tourner le moteur tout en retournant sa valeur de position en pas dans le moniteur série.
 
 ```c++
-
+#include <Arduino.h>
 #include <Encoder.h>
 #include "board.h"
 #include "motor.h"
@@ -279,15 +275,16 @@ int32_t position = 0;
 Motor motor(IN1_1, IN2_1);
 
 void setup() {
-    // On initialise la liaison série et on attend qu'elle s'établisse
-    Serial.begin(9600);
-    delay(2000);
+    // Initialise la liaison série
+    Serial.begin(9600); // Règle la vitesse de communication
+    while(!Serial); // Attend que la communication soit établie
 
-    while(!Serial.available()); // Appuyer sur une touche pour continuer
+    // Règle le PWM du moteur
     motor.setPwm(127);
 }
 
 void loop() {
+    // Lit et envoie la position
     position = encoder.read();
     Serial.println(position);
     delay(100);
@@ -300,19 +297,11 @@ Ce code utilise une librairie qu'on vous a codé pour vous simplifier la vie, vo
 - `void setPwm(const int16_t pwm);` Cette fonction envoie une consigne de PWM (tension) au moteur, la valeur `pwm` varie de _-255 à 255_.
 - `int16_t getPwm() const;` Permet de récupérer la valeur de _pwm_ qui a été envoyée au moteur.
 
-## challenges
+### Challenges
 
 - Afficher la vitesse du moteur en tours par seconde.
 
-## Régulation PID
-
-A ce stade, vous avez du remarquer que même si la vitesse du moteur est proportionnelle à la valeur de tension a ses bornes, il est impossible de le contrôler précisément.
-
-Vous disposez de :
-
-- La librairie encodeur et la capacité à calculer l'angle du moteurs.
-- La librairie de contrôle de vitesse/direction moteur introduite précédemment.
-
+## Correcteur PID
 - [ ] Explication de P, I, D
 - [ ] Saturation de la commande
 - [ ] Réglage du PID
@@ -321,18 +310,32 @@ Vous disposez de :
 - [ ] Période d'échantillonnage effet
 - [ ] Jitter
 
+A ce stade, vous avez du remarquer que l'on ne peut pas contrôler précisément la vitesse ou la position du moteur avec le PWM.
+
+C'est là qu'entre en jeu le **correcteur PID**.
+
 ![pid.png](pid.png)
 
-Le terme _P_ est proportionnel à l'erreur.
+- r(t) est la consigne, c'est la position ou vitesse à atteindre
+- y(t) est la mesure, c'est la position ou vitesse actuelle
+- e(t) est l'erreur entre la consigne et la mesure
+- u(t) est le PWM envoyer au moteur
 
-Le terme _I_ intègre l'erreur.
+Le principe du PID est de fournir un PWM en fonction de l'erreur qui va faire bouger le moteur pour compenser l'erreur.
 
-Le terme _D_ dérive le signal et permet d'amortir
+Pour réaliser cela, le PID comporte trois éléments qui applique différents changements sur l'erreur.
 
-Plus un terme est augmenté plus l'effet est important
+- Le terme _P_ est proportionnel à l'erreur. Il est principalement utiliser pour diminuer le temps de montée.
 
+- Le terme _I_ intègre l'erreur. Il est principalement utiliser pour annuler l'erreur statique.
 
-Effet d'augementation indépendante des paramètres
+- Le terme _D_ dérive le signal. Il est principalement utiliser pour amortir le signal et augmenter la stabilité.
+
+Plus un terme est augmenté plus l'effet est important.
+
+Voici un tableau plus détaillé sur les effets du PID.
+
+Effet d'augmentation indépendante des paramètres
 
 | Effet            | Kp | Ki | Kd |
 | ---------------- | -- | -- | -- |
@@ -344,7 +347,18 @@ Effet d'augementation indépendante des paramètres
 
 ![](pid_tuning.gif)
 
+Pour régler un PID, on met Kp, Ki et Kd à 0.
+
+Ordre:
+- Kp, on l'augmente jusqu'à obtenir des oscillations puis on le diminue juste assez pour que les oscillations s'amortissent.
+- Kd, on l'augmente jusqu'à annuler le dépassement causer par Kp.
+- Ki, on l'augmente jusqu'à obtenir une erreur statique.
+
+Vous pouvez maintenant régler plus finement le PID à votre goût.
+
 ### Anti-windup
+Besoin de l'anti-windup à cause de la saturation de la sortie.
+
 Le terme _I_ intègre l'erreur.
 Sur la zone de montée l'erreur est grande et sur la zone de stabilisation
 
@@ -352,6 +366,8 @@ Avec une erreur plus petite, le terme _I_ peut être augmenté
 
 - Permet d'activer le terme _I_ uniquement dans la zone linéaire, on n'en a pas besoin pendant le temps de montée c'est le terme _P_ qui s'en occupe.
 
+
+### Code for the PID
 <details>
     <summary>Cliquer pour afficher le code</summary>
 

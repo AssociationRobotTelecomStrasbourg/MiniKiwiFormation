@@ -4,58 +4,58 @@ serial:
 data:
     send:
         -
-            name: 'Sample time'
+            label: 'Sample time'
             type: 'uint32'
             default: 1
             min: 1
             max: 1000
         -
-            name: 'Kp'
+            label: 'Kp'
             type: 'float'
             default: 1
             min: 1
             max: 1000
         -
-            name: 'Ki'
+            label: 'Ki'
             type: 'float'
             default: 1
             min: 1
             max: 1000
         -
-            name: 'Kd'
+            label: 'Kd'
             type: 'float'
             default: 1
             min: 1
             max: 1000
         -
-            name: 'Setpoint'
+            label: 'Setpoint'
             type: 'float'
             default: 1
             min: 1
             max: 1000
         -
-            name: 'On/Off'
+            label: 'On/Off'
             type: 'bool'
             default: True
         -
-            name: 'Anti Windup'
+            label: 'Anti Windup'
             type: 'bool'
             default: True
     receive:
         -
-            name: 'Input'
+            label: 'Input'
             type: 'float'
             subplot: 121
         -
-            name: 'Setpoint'
+            label: 'Setpoint'
             type: 'float'
             subplot: 121
         -
-            name: 'Output'
+            label: 'Output'
             type: 'float'
             subplot: 222
         -
-            name: 'Integral'
+            label: 'Integral'
             type: 'float'
             subplot: 224
 plotter:

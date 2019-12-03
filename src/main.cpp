@@ -1,41 +1,36 @@
 #include <Arduino.h>
 #include <Encoder.h>
+#include <pid.h>
 #include "board.h"
 #include "motor.h"
-#include "pid.h"
 #include "binserial.h"
 
-// Réglages du PID
-typedef struct {
-    uint32_t sample_time;
-    float kp;
-    float ki;
-    float kd;
-    float setpoint;
-    bool mode;
-    bool anti_windup;
-} settings_t;
-
-// Variables du PID
 typedef struct {
     float input;
     float setpoint;
-    float output;
-    float integral;
-} variables_t;
+} speed_t;
 
-settings_t settings = {10, 0, 0, 0, 0, false, true}; // Réglages du PID
-size_t settings_size = 22;
+typedef struct {
+    float position;
+    float last_positon;
+} position_t;
 
-variables_t variables = {0, 0, 0, 0};
-size_t variables_size = 16;
+const uint32_t sample_time = 10;
+const float step_per_turn = 1200;
+
+speed_t speed1 = {0., 0.}, speed2 = {0., 0.};
+position_t p1 = {0., 0.}, p2 = {0., 0.};
 
 uint32_t time; // Temps de la dernière période d'échantillonnage
 
-Motor motor(IN1_1, IN2_1); // Initialise motor
-Encoder encoder(A_1, B_1); // Initialise encoder
+Motor motor1(IN1_1, IN2_1); // Initialise motor
+Motor motor2(IN1_2, IN2_2); // Initialise motor
 
-PID pid(0, 0, 0); // Initialise pid
+Encoder encoder1(A_1, B_1); // Initialise encoder
+Encoder encoder2(A_2, B_2); // Initialise encoder
+
+PID speed_pid1(50, 0, 0); // Initialise pid
+PID speed_pid2(50, 0, 0); // Initialise pid
 
 void setup() {
     Serial.begin(9600); // Initialise Serial communication
@@ -45,38 +40,47 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 
-    time = millis() - settings.sample_time; // Initialise le temps
+    // speed_pid1.setMode(true);
+    // speed_pid2.setMode(true);
+
+    time = millis() - sample_time; // Initialise le temps
 }
 
 void loop() {
     // Éxécute les instruction toutes les périodes d'échantillonnages
-    if (millis() - time > settings.sample_time) {
+    if (millis() - time >= sample_time) {
         time = millis();
 
-        // Calcul et applique le PID
-        variables.input = encoder.read(); // Lit l'entrée
+        p1.last_positon = p1.position;
+        p2.last_positon = p2.position;
+        p1.position = encoder1.read();
+        p2.position = encoder2.read();
 
-        pid.setInput(variables.input); // Met à jour l'entrée du PID
-        pid.compute(); // Calcul le PID
+        speed1.input = (p1.position-p1.last_positon)*1000/step_per_turn/sample_time;
+        speed2.input = (p2.position-p2.last_positon)*1000/step_per_turn/sample_time;
 
-        variables.integral = pid.getIntegral(); // Lit le terme intégral
-        variables.output = pid.getOutput(); // Lit la sortie
-        motor.setPwm(variables.output); // Applique la sortie
+        speed_pid1.setInput(speed1.input);
+        speed_pid2.setInput(speed2.input);
+
+        speed_pid1.compute();
+        speed_pid2.compute();
+
+        motor1.setPwm(speed_pid1.getOutput());
+        motor2.setPwm(speed_pid2.getOutput());
 
         // Envoie les variables du PID à pid_interface.py
-        writeData(&variables, variables_size);
+        writeData(&speed1, sizeof(speed_t));
+        writeData(&speed2, sizeof(speed_t));
 
         // Met à jour les réglages du PID si réception de nouveaux réglages
         if (Serial.available()) {
-            digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); // Change l'état de la led
-            readData(&settings, settings_size); // Reçoit les réglages
+            digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+            readData(&speed1.setpoint, sizeof(speed1.setpoint));
+            speed2.setpoint = speed1.setpoint;
 
             // Applique les réglages
-            pid.setMode(settings.mode);
-            pid.setAntiWindup(settings.anti_windup);
-            pid.setTunings(settings.kp, settings.ki, settings.kd);
-            pid.setSetpoint(settings.setpoint);
-            variables.setpoint = settings.setpoint;
+            speed_pid1.setSetpoint(speed1.setpoint);
+            speed_pid2.setSetpoint(speed2.setpoint);
         }
     }
 }

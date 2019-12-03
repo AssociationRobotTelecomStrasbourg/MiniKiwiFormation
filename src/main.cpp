@@ -27,10 +27,10 @@ Motor motor1(IN1_1, IN2_1); // Initialise motor
 Motor motor2(IN1_2, IN2_2); // Initialise motor
 
 Encoder encoder1(A_1, B_1); // Initialise encoder
-Encoder encoder2(A_2, B_2); // Initialise encoder
+Encoder encoder2(B_2, A_2); // Initialise encoder
 
-PID speed_pid1(50, 0, 0); // Initialise pid
-PID speed_pid2(50, 0, 0); // Initialise pid
+PID speed_pid1(60, 10, 0); // Initialise pid
+PID speed_pid2(60, 10, 0); // Initialise pid
 
 void setup() {
     Serial.begin(9600); // Initialise Serial communication
@@ -40,8 +40,8 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 
-    // speed_pid1.setMode(true);
-    // speed_pid2.setMode(true);
+    speed_pid1.setMode(true);
+    speed_pid2.setMode(true);
 
     time = millis() - sample_time; // Initialise le temps
 }

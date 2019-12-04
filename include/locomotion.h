@@ -19,6 +19,7 @@ typedef struct {
     float last_step;
     float speed;
     float target_speed;
+    float pwm;
 } control_t;
 
 typedef struct {

@@ -1,6 +1,6 @@
 #include "locomotion.h"
 
-Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1), _motor2(IN1_2, IN2_2), _encoder1(A_1, B_1), _encoder2(B_2, A_2), _speed_pid1(60, 10, 0), _speed_pid2(60, 10, 0), _control1({0, 0, 0, 0}), _control2({0, 0, 0, 0}), _position({0, 0, 0}), _sample_time(sample_time/1000) {
+Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1), _motor2(IN1_2, IN2_2), _encoder1(A_1, B_1), _encoder2(B_2, A_2), _speed_pid1(60, 10, 0), _speed_pid2(60, 10, 0), _control1({0, 0, 0, 0, 0}), _control2({0, 0, 0, 0, 0}), _position({0, 0, 0}), _sample_time(sample_time/1000) {
     // Activate PID
     _speed_pid1.setMode(true);
     _speed_pid2.setMode(true);
@@ -28,9 +28,13 @@ void Locomotion::run() {
     _speed_pid1.compute();
     _speed_pid2.compute();
 
+    // Get PWM
+    _control1.pwm = _speed_pid1.getOutput();
+    _control2.pwm = _speed_pid2.getOutput();
+
     // Apply PWM
-    _motor1.setPwm(_speed_pid1.getOutput());
-    _motor2.setPwm(_speed_pid2.getOutput());
+    _motor1.setPwm(_control1.pwm);
+    _motor2.setPwm(_control2.pwm);
 }
 
 void Locomotion::setSpeeds(const float speed1, const float speed2) {

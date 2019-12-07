@@ -1,0 +1,37 @@
+serial:
+    port: '/dev/ttyACM0'
+    baud: 115200
+
+subplots:
+    -
+        pos: 131
+        title: 'X'
+        min: -100
+        max: 100
+    -
+        pos: 132
+        title: 'Y'
+        min: -100
+        max: 100
+    -
+        pos: 133
+        title: 'Theta'
+        min: -10
+        max: 10
+data:
+    read:
+        -
+            label: 'x'
+            type: 'float'
+            pos: 131
+        -
+            label: 'y'
+            type: 'float'
+            pos: 132
+        -
+            label: 'theta'
+            type: 'float'
+            pos: 133
+    write:
+        -
+            type: 'float'

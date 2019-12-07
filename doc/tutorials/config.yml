@@ -1,14 +1,31 @@
-# Port name of the serial port
-port_name: '/dev/ttyACM0'
-# Baud rate of the serial connection
-baud_rate: 115200
-# Sample time in milliseconds
-sample_time: 1
-# PID coefficients
-kp: 1
-ki: 0
-kd: 12
-# Reference
-max_setpoint: 1200
-mode: true
-anti_windup: true
+serial:
+    port: '/dev/ttyACM0'
+    baud: 115200
+
+subplots:
+    -
+        pos: 111
+        title: 'Speed'
+        min: -5
+        max: 5
+data:
+    read:
+        -
+            label: 'Input1'
+            type: 'float'
+            pos: 111
+        -
+            label: 'Setpoint1'
+            type: 'float'
+            pos: 111
+        -
+            label: 'Input2'
+            type: 'float'
+            pos: 111
+        -
+            label: 'Setpoint2'
+            type: 'float'
+            pos: 111
+    write:
+        -
+            type: 'float'

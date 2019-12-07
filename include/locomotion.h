@@ -7,12 +7,17 @@
 #include "motor.h"
 #include "board.h"
 
+// Encoder
 const float step_per_turn = 1200;
 
 // Odometry parameters
 const float step_ratio = 1; // Ratio of the two wheel perimeter wheel1/wheel2
 const float wheel_perimeter = 120; // in mm
 const float center_distance = 120; // in mm
+
+// Speed ramps
+const float max_speed = 1000; // in mm
+const float acceleration = 1000; // in mm
 
 typedef struct {
     float step;
@@ -37,10 +42,7 @@ public:
     void run();
 
     // Set motor speed
-    void setSpeeds(const float speed1, const float speed2);
-
-    // Compute odometry
-    void computeOdometry();
+    void setSpeeds(const float translation_speed, const float rotation_speed);
 
     // Get position
     const position_t* getPosition() const;
@@ -52,6 +54,8 @@ private:
     control_t _control1, _control2;
     position_t _position;
     const float _sample_time;
+    float d_step1, d_step2;
+    float d_translation, d_rotation;
 };
 
 #endif

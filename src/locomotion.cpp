@@ -13,12 +13,13 @@ void Locomotion::run() {
     _control1.step = _encoder1.read();
     _control2.step = _encoder2.read();
 
-    // Compute position
-    computeOdometry();
+    // Calculate step moved during sample time
+    d_step1 = _control1.step - _control1.last_step;
+    d_step2 = _control2.step - _control2.last_step;
 
     // Compute speed
-    _control1.speed = (_control1.step-_control1.last_step)/step_per_turn/_sample_time;
-    _control2.speed = (_control2.step-_control2.last_step)/step_per_turn/_sample_time;
+    _control1.speed = d_step1/step_per_turn/_sample_time;
+    _control2.speed = d_step2/step_per_turn/_sample_time;
 
     // Set speed PID inputs
     _speed_pid1.setInput(_control1.speed);
@@ -35,31 +36,28 @@ void Locomotion::run() {
     // Apply PWM
     _motor1.setPwm(_control1.pwm);
     _motor2.setPwm(_control2.pwm);
+
+    // Calculate the equivalent translation and rotation moved during sample time
+    d_translation = (d_step1+d_step2)/2/step_per_turn*wheel_perimeter;
+    d_rotation = (-d_step1+d_step2)/step_per_turn*wheel_perimeter/center_distance;
+
+    // Update position
+    _position.x += d_translation*cos(_position.theta);
+    _position.y += d_translation*sin(_position.theta);
+    _position.theta += d_rotation;
 }
 
-void Locomotion::setSpeeds(const float speed1, const float speed2) {
+void Locomotion::setSpeeds(const float translation_speed, const float rotation_speed) {
     // Set speeds
-    _control1.target_speed = speed1;
-    _control2.target_speed = speed2;
+    _control1.target_speed = translation_speed - rotation_speed*center_distance/2;
+    _control2.target_speed = translation_speed + rotation_speed*center_distance/2;
+
+    // Apply ramps on the speeds
+    // TO DO
 
     // Apply speeds
     _speed_pid1.setSetpoint(_control1.target_speed);
     _speed_pid2.setSetpoint(_control2.target_speed);
-}
-
-void Locomotion::computeOdometry() {
-    // Calculate step moved during sample time
-    float step1 = _control1.step - _control1.last_step;
-    float step2 = _control2.step - _control2.last_step;
-
-    // Calculate the equivalent translation and rotation moved during sample time
-    float translation = (step1+step2)/2/step_per_turn*wheel_perimeter;
-    float rotation = (-step1+step2)/step_per_turn*wheel_perimeter/center_distance;
-
-    // Update position
-    _position.x += translation*cos(_position.theta);
-    _position.y += translation*sin(_position.theta);
-    _position.theta += rotation;
 }
 
 const position_t* Locomotion::getPosition() const {

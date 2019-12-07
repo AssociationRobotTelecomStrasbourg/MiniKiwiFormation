@@ -49,8 +49,8 @@ void Locomotion::run() {
 
 void Locomotion::setSpeeds(const float translation_speed, const float rotation_speed) {
     // Set speeds
-    _control1.target_speed = translation_speed - rotation_speed*center_distance/2;
-    _control2.target_speed = translation_speed + rotation_speed*center_distance/2;
+    _control1.target_speed = (translation_speed - rotation_speed*center_distance/2)/wheel_perimeter;
+    _control2.target_speed = (translation_speed + rotation_speed*center_distance/2)/wheel_perimeter;
 
     // Apply ramps on the speeds
     // TO DO

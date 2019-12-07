@@ -17,8 +17,8 @@ const float wheel_perimeter = 120; // in mm
 const float center_distance = 120; // in mm
 
 // Speed ramps
-const float max_speed = 1000; // in mm
-const float acceleration = 1000; // in mm
+const float max_speed = 100; // in mm
+const float acceleration = 100; // in mm
 
 typedef struct {
     float step;

@@ -1,6 +1,6 @@
 #include "locomotion.h"
 
-Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1), _motor2(IN1_2, IN2_2), _encoder1(A_1, B_1), _encoder2(B_2, A_2), _pid1(60, 10, 0), _pid2(60, 10, 0), _ramp1(max_speed, acceleration*sample_time), _ramp2(max_speed, acceleration*sample_time), _control1({0, 0, 0, 0, 0}), _control2({0, 0, 0, 0, 0}), _position({0, 0, 0}), _sample_time(sample_time/1000) {
+Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1), _motor2(IN1_2, IN2_2), _encoder1(A_1, B_1), _encoder2(B_2, A_2), _pid1(60., 10., 0.), _pid2(60., 10., 0.), _ramp1(max_speed/wheel_perimeter, acceleration/wheel_perimeter*sample_time/1000.), _ramp2(max_speed/wheel_perimeter, acceleration/wheel_perimeter*sample_time/1000.), _control1({0., 0., 0., 0., 0.}), _control2({0., 0., 0., 0., 0.}), _position({0., 0., 0.}), _sample_time(sample_time/1000.) {
     // Activate PID
     _pid1.setMode(true);
     _pid2.setMode(true);

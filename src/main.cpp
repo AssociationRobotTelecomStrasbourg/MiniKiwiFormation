@@ -28,7 +28,7 @@ void loop() {
         writeData(locomotion.getPosition(), sizeof(position_t));
         if (Serial.available()) {
             readData(&speed, sizeof(speed));
-            locomotion.setSpeeds(0, speed);
+            locomotion.setSpeeds(speed, 0);
         }
     }
 }

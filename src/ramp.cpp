@@ -1,6 +1,6 @@
 #include "ramp.h"
 
-Ramp::Ramp(float max_speed, float d_speed) : _target_speed(0.), _speed(0.), _d_speed(d_speed) {}
+Ramp::Ramp(float max_speed, float d_speed) : _target_speed(0.), _speed(0.), _max_speed(max_speed), _d_speed(d_speed) {}
 
 void Ramp::setTargetSpeed(float target_speed) {
     _target_speed = target_speed;

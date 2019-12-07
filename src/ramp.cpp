@@ -12,6 +12,8 @@ float Ramp::computeSpeed() {
         _speed = _speed + _d_speed;
     else if (_target_speed - _speed < -_d_speed)
         _speed = _speed - _d_speed;
+    else
+        _speed = _target_speed;
 
     // Saturate if speed go above limits
     if (_speed > _max_speed)

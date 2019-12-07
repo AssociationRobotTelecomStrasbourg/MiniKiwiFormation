@@ -5,6 +5,7 @@
 #include <Encoder.h>
 #include <pid.h>
 #include "motor.h"
+#include "ramp.h"
 #include "board.h"
 
 // Encoder
@@ -50,12 +51,13 @@ public:
 private:
     Motor _motor1, _motor2;
     Encoder _encoder1, _encoder2;
-    PID _speed_pid1, _speed_pid2;
+    PID _pid1, _pid2;
+    Ramp _ramp1, _ramp2;
     control_t _control1, _control2;
     position_t _position;
     const float _sample_time;
-    float d_step1, d_step2;
-    float d_translation, d_rotation;
+    float _d_step1, _d_step2;
+    float _d_translation, _d_rotation;
 };
 
 #endif

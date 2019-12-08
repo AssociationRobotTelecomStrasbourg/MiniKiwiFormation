@@ -50,10 +50,6 @@ public:
 
 private:
     Motor _motor1, _motor2;
-    Encoder _encoder1, _encoder2;
-    PID _pid1, _pid2;
-    Ramp _ramp1, _ramp2;
-    control_t _control1, _control2;
     position_t _position;
     const float _sample_time;
     float _d_step1, _d_step2;

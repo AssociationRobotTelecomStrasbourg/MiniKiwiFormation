@@ -14,8 +14,8 @@ const float ki = 10.;
 const float kd = 0.;
 
 // Speed ramps
-const float max_speed = 100.; // in mm
-const float acceleration = 100.; // in mm
+const float max_speed = 5.; // in turn/s
+const float acceleration = 5.; // in turn/s^2
 
 typedef struct {
     float position;

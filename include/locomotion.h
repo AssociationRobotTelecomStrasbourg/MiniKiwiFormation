@@ -2,31 +2,13 @@
 #define LOCOMOTION_H
 
 #include <Arduino.h>
-#include <Encoder.h>
-#include <pid.h>
 #include "motor.h"
-#include "ramp.h"
 #include "board.h"
-
-// Encoder
-const float step_per_turn = 1200;
 
 // Odometry parameters
 const float step_ratio = 1; // Ratio of the two wheel perimeter wheel1/wheel2
 const float wheel_perimeter = 120; // in mm
 const float center_distance = 120; // in mm
-
-// Speed ramps
-const float max_speed = 100; // in mm
-const float acceleration = 100; // in mm
-
-typedef struct {
-    float step;
-    float last_step;
-    float speed;
-    float target_speed;
-    float pwm;
-} control_t;
 
 typedef struct {
     float x;
@@ -50,13 +32,9 @@ public:
 
 private:
     Motor _motor1, _motor2;
-    Encoder _encoder1, _encoder2;
-    PID _pid1, _pid2;
-    Ramp _ramp1, _ramp2;
-    control_t _control1, _control2;
     position_t _position;
     const float _sample_time;
-    float _d_step1, _d_step2;
+    float _d_position1, _d_position2;
     float _d_translation, _d_rotation;
 };
 

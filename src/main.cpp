@@ -7,7 +7,7 @@ const uint32_t sample_time = 10;
 uint32_t time; // Temps de la dernière période d'échantillonnage
 float speed;
 
-Locomotion locomotion(sample_time);
+Locomotion locomotion(sample_time/1000.);
 
 void setup() {
     Serial.begin(9600); // Initialise Serial communication

@@ -1,7 +1,7 @@
 # MiniKiwiFormation
 
 ## Software
-- [ ] Add ramps for speed in Locomotion
+- [ ] Modify Motor to include Encoder and PID
 
 ## Documents de référence à écrire :
 - [ ] Documentation carte miniKiwi

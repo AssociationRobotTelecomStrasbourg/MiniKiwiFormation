@@ -1,7 +1,9 @@
 # MiniKiwiFormation
 
 ## Software
-- [ ] Modify Motor to include Encoder and PID
+- [x] Modify Motor to include Encoder and PID
+- [ ] Add correction ratio to odometry
+- [ ] Add position control
 
 ## Documents de référence à écrire :
 - [ ] Documentation carte miniKiwi

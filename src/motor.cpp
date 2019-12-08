@@ -1,6 +1,6 @@
 #include "motor.h"
 
-Motor::Motor(const uint8_t motor_pin1, const uint8_t motor_pin2, const uint8_t encoder_pin1, const uint8_t encoder_pin2, const float sample_time) : _encoder(encoder_pin1, encoder_pin2), _pid(kp, ki, kd), _c({0., 0., 0., 0., 0.}), _motor_pin1(motor_pin1), _motor_pin2(motor_pin2), _sample_time(sample_time) {
+Motor::Motor(const uint8_t motor_pin1, const uint8_t motor_pin2, const uint8_t encoder_pin1, const uint8_t encoder_pin2, const float sample_time) : _encoder(encoder_pin1, encoder_pin2), _pid(kp, ki, kd), _c({0., 0., 0., 0., 0., 0.}), _motor_pin1(motor_pin1), _motor_pin2(motor_pin2), _sample_time(sample_time) {
     analogWrite(_motor_pin1, 0);
     analogWrite(_motor_pin2, 0);
 }
@@ -21,8 +21,8 @@ void Motor::setTargetSpeed(const float target_speed) {
     _c.target_speed = target_speed;
 }
 
-float Motor::getPosition() {
-    return _c.position;
+float Motor::getDPosition() {
+    return _c.d_position;
 }
 
 void Motor::run() {
@@ -38,10 +38,10 @@ void Motor::run() {
     _pid.setInput(_c.speed);
 
     // Limit acceleration
-    if (_c.target_speed - _c.ramp_speed > acceleration*_sample_time)
-        _c.ramp_speed += acceleration*_sample_time;
-    else if (_c.target_speed - _c.ramp_speed < -acceleration*_sample_time)
-        _c.ramp_speed += acceleration*_sample_time;
+    if (_c.target_speed - _c.ramp_speed > acceleration * _sample_time)
+        _c.ramp_speed += acceleration * _sample_time;
+    else if (_c.target_speed - _c.ramp_speed < -acceleration * _sample_time)
+        _c.ramp_speed += acceleration * _sample_time;
     else
         _c.ramp_speed = _c.target_speed;
 
@@ -61,5 +61,5 @@ void Motor::run() {
     _c.pwm = _pid.getOutput();
 
     // Apply PWM
-    _motor1.setPwm(_c.pwm);
+    setPwm(_c.pwm);
 }

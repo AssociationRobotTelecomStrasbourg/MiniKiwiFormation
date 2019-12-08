@@ -38,7 +38,7 @@ public:
     void setTargetSpeed(const float target_speed);
 
     // Get the position in turn
-    float getPosition();
+    float getDPosition();
 
     // Run the speed control every sample time
     void run();

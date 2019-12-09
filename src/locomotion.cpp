@@ -1,32 +1,90 @@
 #include "locomotion.h"
 
-Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _rotation_pid(4., 0., 20.), _translation_pid(3., 0., 30.), _position({0., 0., 0.}), _target_position({0., 0., 0.}), _sample_time(sample_time) {
+Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _translation_pid(3., 0., 30.), _rotation_pid(4., 0., 20.), _position({0., 0., 0.}), _target_position({0., 0., 0.}), _state(STOP), _sample_time(sample_time) {
+    // Start in STOP state
+    stop();
     setSpeeds(0., 0.);
+
+    // Set the speeds limits
     _rotation_pid.setOutputLimits(-2*M_PI, 2*M_PI);
     _translation_pid.setOutputLimits(-500, 500);
 }
 
 void Locomotion::rotateFrom(const float d_theta) {
+    // Update target orientation
     _target_position.theta += d_theta;
+
+    // Enable only the rotation PID
     _rotation_pid.setMode(true);
     _translation_pid.setMode(false);
+
+    _state = ROTATE;
 }
 
 void Locomotion::translateFrom(const float distance) {
+    // Update target position
     _target_position.x += distance * cos(_target_position.theta);
     _target_position.y += distance * sin(_target_position.theta);
+
+    // Enable the PIDs
     _translation_pid.setMode(true);
-    _rotation_pid.setMode(false);
+    _rotation_pid.setMode(true);
+
+    _state = TRANSLATE;
 }
 
-void Locomotion::run() {
-    // Compute rotation speed
-    _translation_pid.setInput(_position.x * cos(_position.theta) + _position.y * sin(_position.theta));
-    _translation_pid.setSetpoint(_target_position.x * cos(_target_position.theta) + _target_position.y * sin(_target_position.theta));
-    _translation_pid.compute();
+void Locomotion::stop() {
+    // Disable the PIDs
+    _translation_pid.setMode(false);
+    _rotation_pid.setMode(false);
 
-    _rotation_pid.setInput(_position.theta);
-    _rotation_pid.setSetpoint(_target_position.theta);
+    // Set outputs to 0
+    _translation_pid.setOutput(0.);
+    _rotation_pid.setOutput(0.);
+    _translation_pid.setIntegral(0.);
+    _rotation_pid.setIntegral(0.);
+
+    _state = STOP;
+}
+
+state_t Locomotion::run() {
+    // Compute rotation speed according to the state
+    switch(_state) {
+        case STOP:
+            break;
+        case ROTATE:
+            // Stop if arrived
+            if (fabsf(_target_position.theta - _position.theta) < rotation_precision) {
+                stop();
+            }
+            // Update the PIDs
+            else {
+                _rotation_pid.setInput(_position.theta);
+                _rotation_pid.setSetpoint(_target_position.theta);
+            }
+            break;
+        case TRANSLATE:
+            // Calculate distance and theta to move
+            _d_x = _target_position.x - _position.x;
+            _d_y = _target_position.y - _position.y;
+            _distance = sqrtf(_d_x*_d_x + _d_y*_d_y);
+            _theta = atan2f(_d_y, _d_x) - _position.theta;
+
+            // Stop if arrived
+            if (fabsf(_distance) < translation_precision) {
+                stop();
+            }
+            // Update the PIDs
+            else {
+                _translation_pid.setInput(-_distance);
+                _translation_pid.setSetpoint(0.);
+
+                _rotation_pid.setInput(-_theta);
+                _rotation_pid.setSetpoint(0.);
+            }
+            break;
+    }
+    _translation_pid.compute();
     _rotation_pid.compute();
 
     // Apply rotation speed
@@ -47,6 +105,8 @@ void Locomotion::run() {
     _position.x += _d_translation*cos(_position.theta);
     _position.y += _d_translation*sin(_position.theta);
     _position.theta += _d_rotation;
+
+    return _state;
 }
 
 void Locomotion::setSpeeds(const float translation_speed, const float rotation_speed) {

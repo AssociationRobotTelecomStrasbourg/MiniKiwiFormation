@@ -15,7 +15,6 @@ void setup() {
 
     // Initialise LED de debug
     pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
 
     time = millis() - sample_time; // Initialise le temps
 }
@@ -24,7 +23,13 @@ void loop() {
     // Éxécute les instruction toutes les périodes d'échantillonnages
     if (millis() - time >= sample_time) {
         time = millis();
-        locomotion.run();
+
+        // Run the locomotion
+        if (STOP == locomotion.run())
+            digitalWriteFast(LED_BUILTIN, HIGH);
+        else
+            digitalWriteFast(LED_BUILTIN, LOW);
+
         writeData(locomotion.getPosition(), sizeof(position_t));
         if (Serial.available()) {
             readData(&distance, sizeof(distance));

@@ -57,4 +57,6 @@ private:
     float _d_x, _d_y, _distance, _theta;
 };
 
+float pi_modulo(float angle);
+
 #endif

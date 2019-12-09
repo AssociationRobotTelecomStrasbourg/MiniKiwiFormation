@@ -90,7 +90,12 @@ state_t Locomotion::run() {
             _d_x = _target_position.x - _position.x;
             _d_y = _target_position.y - _position.y;
             _distance = sqrtf(_d_x*_d_x + _d_y*_d_y);
-            _theta = atan2f(_d_y, _d_x) - _position.theta;
+            _theta = pi_modulo(atan2f(_d_y, _d_x) - _position.theta);
+            // Go backward if it is faster
+            if (fabsf(_theta) > M_PI_2) {
+                _distance = -_distance;
+                _theta = pi_modulo(_theta + M_PI);
+            }
 
             // Stop if arrived
             if (fabsf(_distance) < translation_precision) {
@@ -140,4 +145,15 @@ void Locomotion::setSpeeds(const float translation_speed, const float rotation_s
 
 const position_t* Locomotion::getPosition() const {
     return &_position;
+}
+
+float pi_modulo(float angle) {
+    angle = fmodf(angle, 2 * M_PI);
+    if (angle > M_PI) {
+        return angle - 2 * M_PI;
+    }
+    if (angle < -M_PI) {
+        return angle + 2 * M_PI;
+    }
+    return angle;
 }

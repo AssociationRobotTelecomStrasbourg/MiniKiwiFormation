@@ -33,7 +33,7 @@ void loop() {
         writeData(locomotion.getPosition(), sizeof(position_t));
         if (Serial.available()) {
             readData(&distance, sizeof(distance));
-            locomotion.rotateFrom(distance);
+            locomotion.translateFrom(distance);
         }
     }
 }

@@ -118,7 +118,7 @@ state_t Locomotion::run() {
     _motor2.run();
 
     _d_position1 = _motor1.getDPosition();
-    _d_position2 = _motor2.getDPosition();
+    _d_position2 = _motor2.getDPosition()*wheel_ratio;
 
     // Calculate the equivalent translation and rotation moved during sample time
     _d_translation = (_d_position1+_d_position2)*wheel_perimeter/2;
@@ -135,7 +135,7 @@ state_t Locomotion::run() {
 void Locomotion::setSpeeds(const float translation_speed, const float rotation_speed) {
     // Set the target speeds
     _motor1.setTargetSpeed((translation_speed - rotation_speed*center_distance/2)/wheel_perimeter);
-    _motor2.setTargetSpeed((translation_speed + rotation_speed*center_distance/2)/wheel_perimeter);
+    _motor2.setTargetSpeed((translation_speed + rotation_speed*center_distance/2)/wheel_perimeter*wheel_ratio);
 }
 
 const position_t* Locomotion::getPosition() const {

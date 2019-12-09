@@ -2,7 +2,7 @@
 
 ## Software
 - [x] Modify Motor to include Encoder and PID
-- [ ] Add correction ratio to odometry
+- [x] Add correction ratio to odometry
 - [ ] Add position control
 
 ## Documents de référence à écrire :

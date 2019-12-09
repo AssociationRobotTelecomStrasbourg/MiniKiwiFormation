@@ -7,7 +7,7 @@
 #include "board.h"
 
 // Odometry parameters
-const float step_ratio = 1; // Ratio of the two wheel perimeter wheel1/wheel2
+const float wheel_ratio = 1; // Ratio of the two wheel perimeter wheel1/wheel2
 const float wheel_perimeter = 120; // in mm
 const float center_distance = 120; // in mm
 

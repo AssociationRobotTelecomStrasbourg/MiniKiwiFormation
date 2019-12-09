@@ -1,6 +1,6 @@
 #include "locomotion.h"
 
-Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _translation_pid(3., 0., 30.), _rotation_pid(4., 0., 20.), _position({0., 0., 0.}), _target_position({0., 0., 0.}), _state(STOP), _sample_time(sample_time) {
+Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _translation_pid(3., 0., 30.), _rotation_pid(4., 0., 30.), _position({0., 0., 0.}), _target_position({0., 0., 0.}), _state(STOP), _sample_time(sample_time) {
     // Start in STOP state
     stop();
     setSpeeds(0., 0.);
@@ -12,7 +12,7 @@ Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, samp
 
 void Locomotion::rotateFrom(const float d_theta) {
     // Update target orientation
-    _target_position.theta += d_theta;
+    _target_position.theta = _position.theta + d_theta;
 
     // Enable only the rotation PID
     _rotation_pid.setMode(true);
@@ -23,8 +23,8 @@ void Locomotion::rotateFrom(const float d_theta) {
 
 void Locomotion::translateFrom(const float distance) {
     // Update target position
-    _target_position.x += distance * cos(_target_position.theta);
-    _target_position.y += distance * sin(_target_position.theta);
+    _target_position.x = _position.x + distance * cos(_target_position.theta);
+    _target_position.y = _position.y + distance * sin(_target_position.theta);
 
     // Enable the PIDs
     _translation_pid.setMode(true);
@@ -44,7 +44,10 @@ void Locomotion::stop() {
     _translation_pid.setIntegral(0.);
     _rotation_pid.setIntegral(0.);
 
-    _state = STOP;
+    if (_state == STOPPING || _state == STOP)
+        _state = STOP;
+    else
+        _state = STOPPING;
 }
 
 state_t Locomotion::run() {
@@ -52,9 +55,28 @@ state_t Locomotion::run() {
     switch(_state) {
         case STOP:
             break;
+        case STOPPING:
+            _theta = _target_position.theta - _position.theta;
+            _d_x = _target_position.x - _position.x;
+            _d_y = _target_position.y - _position.y;
+            _distance = sqrtf(_d_x*_d_x + _d_y*_d_y);
+
+            if (fabsf(_theta) > rotation_precision) {
+                rotateFrom(_theta);
+            }
+            else if (fabsf(_distance) > translation_precision) {
+                translateFrom(_distance);
+            }
+            else {
+                stop();
+            }
+
+            break;
         case ROTATE:
             // Stop if arrived
             if (fabsf(_target_position.theta - _position.theta) < rotation_precision) {
+                _target_position.x = _position.x;
+                _target_position.y = _position.y;
                 stop();
             }
             // Update the PIDs
@@ -72,6 +94,7 @@ state_t Locomotion::run() {
 
             // Stop if arrived
             if (fabsf(_distance) < translation_precision) {
+                _target_position.theta = _position.theta;
                 stop();
             }
             // Update the PIDs

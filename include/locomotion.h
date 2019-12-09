@@ -25,6 +25,9 @@ public:
     // Rotate from d theta
     void rotateFrom(const float d_theta);
 
+    // Translate for distance
+    void translateFrom(const float distance);
+
     // Run the locomotion
     void run();
 
@@ -36,7 +39,7 @@ public:
 
 private:
     Motor _motor1, _motor2;
-    PID _rotation_pid;
+    PID _translation_pid, _rotation_pid;
     position_t _position, _target_position;
     const float _sample_time;
     float _d_position1, _d_position2;

@@ -1,23 +1,35 @@
 #include "locomotion.h"
 
-Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _rotation_pid(4., 0., 20.), _position({0., 0., 0.}), _target_position({0., 0., 0.}), _sample_time(sample_time) {
+Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _rotation_pid(4., 0., 20.), _translation_pid(3., 0., 30.), _position({0., 0., 0.}), _target_position({0., 0., 0.}), _sample_time(sample_time) {
     setSpeeds(0., 0.);
     _rotation_pid.setOutputLimits(-2*M_PI, 2*M_PI);
+    _translation_pid.setOutputLimits(-500, 500);
 }
 
 void Locomotion::rotateFrom(const float d_theta) {
     _target_position.theta += d_theta;
     _rotation_pid.setMode(true);
+    _translation_pid.setMode(false);
+}
+
+void Locomotion::translateFrom(const float distance) {
+    _target_position.x += distance;
+    _translation_pid.setMode(true);
+    _rotation_pid.setMode(false);
 }
 
 void Locomotion::run() {
     // Compute rotation speed
+    _translation_pid.setInput(_position.x);
+    _translation_pid.setSetpoint(_target_position.x);
+    _translation_pid.compute();
+
     _rotation_pid.setInput(_position.theta);
     _rotation_pid.setSetpoint(_target_position.theta);
     _rotation_pid.compute();
 
     // Apply rotation speed
-    setSpeeds(0., _rotation_pid.getOutput());
+    setSpeeds(_translation_pid.getOutput(), _rotation_pid.getOutput());
 
     // Run speed control
     _motor1.run();

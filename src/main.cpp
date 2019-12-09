@@ -5,7 +5,7 @@
 
 const uint32_t sample_time = 10;
 uint32_t time; // Temps de la dernière période d'échantillonnage
-float d_theta;
+float distance;
 
 Locomotion locomotion(sample_time/1000.);
 
@@ -27,8 +27,8 @@ void loop() {
         locomotion.run();
         writeData(locomotion.getPosition(), sizeof(position_t));
         if (Serial.available()) {
-            readData(&d_theta, sizeof(d_theta));
-            locomotion.rotateFrom(d_theta);
+            readData(&distance, sizeof(distance));
+            locomotion.translateFrom(distance);
         }
     }
 }

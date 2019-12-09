@@ -2,6 +2,7 @@
 #define LOCOMOTION_H
 
 #include <Arduino.h>
+#include <pid.h>
 #include "motor.h"
 #include "board.h"
 
@@ -21,6 +22,9 @@ public:
     // Initialisation of the Locomotion class
     Locomotion(const float sample_time);
 
+    // Rotate from d theta
+    void rotateFrom(const float d_theta);
+
     // Run the locomotion
     void run();
 
@@ -32,7 +36,8 @@ public:
 
 private:
     Motor _motor1, _motor2;
-    position_t _position;
+    PID _rotation_pid;
+    position_t _position, _target_position;
     const float _sample_time;
     float _d_position1, _d_position2;
     float _d_translation, _d_rotation;

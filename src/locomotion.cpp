@@ -1,8 +1,24 @@
 #include "locomotion.h"
 
-Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _position({0., 0., 0.}), _sample_time(sample_time) {}
+Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _rotation_pid(4., 0., 20.), _position({0., 0., 0.}), _target_position({0., 0., 0.}), _sample_time(sample_time) {
+    setSpeeds(0., 0.);
+    _rotation_pid.setOutputLimits(-2*M_PI, 2*M_PI);
+}
+
+void Locomotion::rotateFrom(const float d_theta) {
+    _target_position.theta += d_theta;
+    _rotation_pid.setMode(true);
+}
 
 void Locomotion::run() {
+    // Compute rotation speed
+    _rotation_pid.setInput(_position.theta);
+    _rotation_pid.setSetpoint(_target_position.theta);
+    _rotation_pid.compute();
+
+    // Apply rotation speed
+    setSpeeds(0., _rotation_pid.getOutput());
+
     // Run speed control
     _motor1.run();
     _motor2.run();

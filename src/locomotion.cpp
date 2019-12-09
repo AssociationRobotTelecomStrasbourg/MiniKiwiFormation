@@ -13,15 +13,16 @@ void Locomotion::rotateFrom(const float d_theta) {
 }
 
 void Locomotion::translateFrom(const float distance) {
-    _target_position.x += distance;
+    _target_position.x += distance * cos(_target_position.theta);
+    _target_position.y += distance * sin(_target_position.theta);
     _translation_pid.setMode(true);
     _rotation_pid.setMode(false);
 }
 
 void Locomotion::run() {
     // Compute rotation speed
-    _translation_pid.setInput(_position.x);
-    _translation_pid.setSetpoint(_target_position.x);
+    _translation_pid.setInput(_position.x * cos(_position.theta) + _position.y * sin(_position.theta));
+    _translation_pid.setSetpoint(_target_position.x * cos(_target_position.theta) + _target_position.y * sin(_target_position.theta));
     _translation_pid.compute();
 
     _rotation_pid.setInput(_position.theta);

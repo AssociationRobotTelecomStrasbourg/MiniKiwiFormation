@@ -5,7 +5,7 @@
 
 const uint32_t sample_time = 10;
 uint32_t time; // Temps de la dernière période d'échantillonnage
-float speed;
+float distance;
 
 Locomotion locomotion(sample_time/1000.);
 
@@ -15,7 +15,6 @@ void setup() {
 
     // Initialise LED de debug
     pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
 
     time = millis() - sample_time; // Initialise le temps
 }
@@ -24,11 +23,17 @@ void loop() {
     // Éxécute les instruction toutes les périodes d'échantillonnages
     if (millis() - time >= sample_time) {
         time = millis();
-        locomotion.run();
+
+        // Run the locomotion
+        if (STOP == locomotion.run())
+            digitalWriteFast(LED_BUILTIN, HIGH);
+        else
+            digitalWriteFast(LED_BUILTIN, LOW);
+
         writeData(locomotion.getPosition(), sizeof(position_t));
         if (Serial.available()) {
-            readData(&speed, sizeof(speed));
-            locomotion.setSpeeds(speed, 0);
+            readData(&distance, sizeof(distance));
+            locomotion.translateFrom(distance);
         }
     }
 }

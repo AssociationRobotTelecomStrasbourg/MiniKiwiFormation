@@ -12,8 +12,8 @@ const float wheel_perimeter = 120; // in mm
 const float center_distance = 120; // in mm
 
 // Precision parameters
-const float translation_precision = 2;
-const float rotation_precision = 0.005;
+const float translation_precision = 5; // in mm
+const float rotation_precision = 0.01; // in rad
 
 typedef struct {
     float x;
@@ -21,7 +21,7 @@ typedef struct {
     float theta;
 } position_t;
 
-typedef enum {STOP, STOPPING_ROTATE, STOPPING_TRANSLATE, ROTATE, TRANSLATE} state_t;
+typedef enum {STOP, ROTATE, TRANSLATE} state_t;
 
 class Locomotion {
 public:
@@ -55,7 +55,7 @@ public:
 private:
     Motor _motor1, _motor2;
     PID _translation_pid, _rotation_pid;
-    position_t _position, _target_position;
+    position_t _position, _last_position, _target_position;
     state_t _state;
     const float _sample_time;
     float _d_position1, _d_position2;

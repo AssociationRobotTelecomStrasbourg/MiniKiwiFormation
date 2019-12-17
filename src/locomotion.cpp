@@ -1,48 +1,22 @@
 #include "locomotion.h"
 
-Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _translation_pid(3., 0., 30.), _rotation_pid(4., 0., 30.), _position({0., 0., 0.}), _last_position({0., 0., 0.}), _target_position({0., 0., 0.}), _state(STOP), _sample_time(sample_time) {
+Locomotion::Locomotion(float sample_time) : _motor1(IN1_1, IN2_1, A_1, B_1, sample_time), _motor2(IN1_2, IN2_2, B_2, A_2, sample_time), _position({0., 0., 0.}), _target_position({0., 0., 0.}), _state(STOP), _sample_time(sample_time) {
     // Start in STOP state
     stop();
     setSpeeds(0., 0.);
-
-    // Set the speeds limits
-    _rotation_pid.setOutputLimits(-2*M_PI, 2*M_PI);
-    _translation_pid.setOutputLimits(-500, 500);
 }
 
 void Locomotion::rotateFrom(const float d_theta) {
-    // Update target orientation
-    _target_position.theta += d_theta;
-
-    // Enable only the rotation PID
-    _rotation_pid.setMode(true);
-    _translation_pid.setMode(false);
-
+    _theta = d_theta;
     _state = ROTATE;
 }
 
 void Locomotion::translateFrom(const float distance) {
-    // Update target position
-    _target_position.x += distance * cos(_target_position.theta);
-    _target_position.y += distance * sin(_target_position.theta);
-
-    // Enable the PIDs
-    _translation_pid.setMode(true);
-    _rotation_pid.setMode(true);
-
+    _distance = distance;
     _state = TRANSLATE;
 }
 
 void Locomotion::stop() {
-    // Disable the PIDs
-    _translation_pid.setMode(false);
-    _rotation_pid.setMode(false);
-
-    // Set outputs to 0
-    _translation_pid.setOutput(0.);
-    _rotation_pid.setOutput(0.);
-    _translation_pid.setIntegral(0.);
-    _rotation_pid.setIntegral(0.);
     _state = STOP;
 }
 
@@ -50,50 +24,37 @@ state_t Locomotion::run() {
     // Compute rotation speed according to the state
     switch(_state) {
         case STOP:
-            _target_position = _position;
+            _translation_speed = 0;
+            _rotation_speed = 0;
             break;
         case ROTATE:
-            // Stop if arrived
-            if (fabsf(_target_position.theta - _position.theta) < rotation_precision && _last_position.theta == _position.theta) {
+            _translation_speed = 0;
+            if (_theta > rotation_precision)
+                _rotation_speed = max_rotation_speed;
+            else if (_theta < -rotation_precision)
+                _rotation_speed = -max_rotation_speed;
+            else {
+                _rotation_speed = 0;
                 stop();
             }
-            // Update the PIDs
-            _rotation_pid.setInput(_position.theta);
-            _rotation_pid.setSetpoint(_target_position.theta);
+            _theta -= _rotation_speed * _sample_time;
             break;
         case TRANSLATE:
-            // Calculate distance and theta to move
-            _d_x = _target_position.x - _position.x;
-            _d_y = _target_position.y - _position.y;
-            _distance = sqrtf(_d_x*_d_x + _d_y*_d_y);
-            _theta = pi_modulo(atan2f(_d_y, _d_x) - _position.theta);
-
-            // Go backward if it is faster
-            if (fabsf(_theta) > M_PI_2) {
-                _distance = -_distance;
-                _theta = pi_modulo(_theta + M_PI);
+            _rotation_speed = 0;
+            if (_distance > translation_precision)
+                _translation_speed = max_translation_speed;
+            else if (_distance < -translation_precision)
+                _translation_speed = -max_translation_speed;
+            else {
+                _translation_speed = 0;
+                stop();
             }
-
-            // Stop if arrived
-            if (fabsf(_distance) < translation_precision) {
-                // Disactivate rotation control when nearly arrived
-                _theta = 0;
-                if (_last_position.x == _position.x && _last_position.y == _position.y)
-                    stop();
-            }
-            // Update the PIDs
-            _translation_pid.setInput(-_distance);
-            _translation_pid.setSetpoint(0.);
-
-            _rotation_pid.setInput(-_theta);
-            _rotation_pid.setSetpoint(0.);
+            _distance -= _translation_speed * _sample_time;
             break;
     }
-    _translation_pid.compute();
-    _rotation_pid.compute();
 
     // Apply rotation speed
-    setSpeeds(_translation_pid.getOutput(), _rotation_pid.getOutput());
+    setSpeeds(_translation_speed, _rotation_speed);
 
     // Run speed control
     _motor1.run();
@@ -107,7 +68,6 @@ state_t Locomotion::run() {
     _d_rotation = (-_d_position1+_d_position2)*wheel_perimeter/center_distance;
 
     // Update position
-    _last_position = _position;
     _position.x += _d_translation*cos(_position.theta);
     _position.y += _d_translation*sin(_position.theta);
     _position.theta += _d_rotation;

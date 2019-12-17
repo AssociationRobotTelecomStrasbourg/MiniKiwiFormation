@@ -12,16 +12,12 @@ const float step_per_turn = 1200.;
 const float kp = 60.;
 const float ki = 10.;
 const float kd = 0.;
-
-// Speed ramps
-const float max_speed = 5.; // in turn/s
-const float acceleration = 5.; // in turn/s^2
+const float limit = 255;
 
 typedef struct {
     float position;
     float d_position;
     float speed;
-    float ramp_speed;
     float target_speed;
     float pwm;
 } control_t;

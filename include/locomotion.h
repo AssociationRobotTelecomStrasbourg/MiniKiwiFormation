@@ -13,7 +13,11 @@ const float center_distance = 120; // in mm
 
 // Precision parameters
 const float translation_precision = 5; // in mm
-const float rotation_precision = 0.01; // in rad
+const float rotation_precision = 0.05; // in rad
+
+// Speeds
+const float max_rotation_speed = M_PI/10; // in rad/s
+const float max_translation_speed = 500/10; // in mm
 
 typedef struct {
     float x;
@@ -37,12 +41,6 @@ public:
     // Stop
     void stop();
 
-    // Stop
-    void stop_translate();
-
-    // Stop
-    void stop_rotate();
-
     // Run the locomotion
     state_t run();
 
@@ -54,13 +52,13 @@ public:
 
 private:
     Motor _motor1, _motor2;
-    PID _translation_pid, _rotation_pid;
-    position_t _position, _last_position, _target_position;
+    position_t _position, _target_position;
     state_t _state;
     const float _sample_time;
     float _d_position1, _d_position2;
     float _d_translation, _d_rotation;
-    float _d_x, _d_y, _distance, _theta;
+    float _distance, _theta;
+    float _translation_speed, _rotation_speed;
 };
 
 float pi_modulo(float angle);

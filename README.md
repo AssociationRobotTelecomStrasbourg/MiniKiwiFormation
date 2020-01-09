@@ -9,3 +9,6 @@
 - [ ] Documentation carte miniKiwi
 - [ ] Documentation et fichiers .stl supports de formation PID, et explications sur la préparation des supports de formations
 - [ ] Documentation de base sur l'utilisation du firmware de jeelabs, et l'utilisation en pont uart/wifi
+
+## Resources
+- [XV_Lidar_Controller](https://github.com/getSurreal/XV_Lidar_Controller)

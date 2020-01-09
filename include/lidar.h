@@ -9,8 +9,6 @@
 const int N_ANGLES = 360;                // # of angles (0..359)
 const int SHOW_ALL_ANGLES = N_ANGLES;    // value means 'display all angle data, 0..359'
 
-const byte EEPROM_ID = 0x07;   // used to validate EEPROM initialized
-
 const unsigned char COMMAND = 0xFA;        // Start of new packet
 const int INDEX_LO = 0xA0;                 // lowest index value
 const int INDEX_HI = 0xF9;                 // highest index value
@@ -63,38 +61,23 @@ const int ledPin = 13;
 
 class Lidar {
 public:
-    Lidar();
-    void run();
-    uint16_t processIndex();
-    void processSpeed();
-    byte processDistance(int iQuad);
-    void processSignalStrength(int iQuad);
-    byte eValidatePacket();
-    void initEEPROM();
-    void showAll();
-    void hideAll();
-    void showInterval();
-    void hideInterval();
-    void showErrors();
-    void hideErrors();
-    void showRPM();
-    void hideRPM();
-    void showDist();
-    void hideDist();
+    Lidar(); // Initialize the Lidar class
+    void run(); // run in the loop
+    uint16_t processIndex(); // Process the index of the packet
+    void processSpeed(); // Process the speeds of the packet
+    byte processDistance(int iQuad); // Process the distances of the packet
+    void processSignalStrength(int iQuad); // Process the Signal Strengths of the packet
+    byte eValidatePacket(); // Check the validity of the packet
+    void initConfig(); // Init the lidar config
     void setAngle();
     void motorOff();
     void motorOn();
     void motorCheck();
-    void hideRaw();
-    void showRaw();
     void setRPM();
     void setKp();
     void setKi();
     void setKd();
     void setSampleTime();
-    void help();
-    void showConfig();
-    void saveConfig();
 
 private:
     double pwm_val = 127;          // start with ~50% power
@@ -105,8 +88,6 @@ private:
     unsigned long motor_check_interval = 200;
     unsigned int rpm_err_thresh = 10;  // 2 seconds (10 * 200ms) to shutdown motor with improper RPM and high voltage
     unsigned int rpm_err = 0;
-    unsigned long curMillis;
-    unsigned long lastMillis = millis();
 
     int Packet[PACKET_LENGTH];                 // an input packet
     int ixPacket = 0;                          // index into 'Packet' array
@@ -127,9 +108,7 @@ private:
 
     boolean ledState = LOW;
 
-    struct EEPROM_Config {
-        byte id;
-        char version[6];
+    struct config_t {
         int motor_pwm_pin;            // pin connected to mosfet for motor speed control
         double rpm_setpoint;          // desired RPM (uses double to be compatible with PID library)
         double rpm_min;
@@ -145,10 +124,6 @@ private:
 
         boolean motor_enable;        // to spin the laser or not.  No data when not spinning
         boolean raw_data;            // to retransmit the seiral data to the USB port
-        boolean show_dist;           // controlled by ShowDist and HideDist commands
-        boolean show_rpm;            // controlled by ShowRPM and HideRPM commands
-        boolean show_interval;       // true = show time interval, once per revolution, at angle=0
-        boolean show_errors;         // Show CRC, signal strength and invalid data errors
         boolean aryAngles[N_ANGLES]; // array of angles to display
     }
     xv_config;

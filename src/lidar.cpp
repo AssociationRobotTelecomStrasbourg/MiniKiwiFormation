@@ -2,7 +2,7 @@
 
 // initialization
 Lidar::Lidar() : rpmPID(&motor_rpm, &pwm_val, &xv_config.rpm_setpoint, xv_config.Kp, xv_config.Ki, xv_config.Kd, DIRECT) {
-  initEEPROM();
+  initConfig();
   pinMode(xv_config.motor_pwm_pin, OUTPUT);
   Serial.begin(115200);                    // USB serial
   Serial1.begin(115200);                   // XV LDS data
@@ -52,35 +52,20 @@ void Lidar::run() {
             if (aryInvalidDataFlag[ix] == 0)
               processSignalStrength(ix);
           }
-          if (xv_config.show_dist) {                           // the 'ShowDistance' command is active
-            for (int ix = 0; ix < N_DATA_QUADS; ix++) {
-              if (xv_config.aryAngles[startingAngle + ix]) {             // if we're supposed to display that angle
-                if (aryInvalidDataFlag[ix] & BAD_DATA_MASK) {  // if LIDAR reported a data error...
-                  if (xv_config.show_errors) {                           // if we're supposed to show data errors...
-                    Serial.print(F("A,"));
-                    Serial.print(startingAngle + ix);
-                    Serial.print(F(","));
-                    if (aryInvalidDataFlag[ix] & INVALID_DATA_FLAG)
-                      Serial.println(F("I"));
-                    if (aryInvalidDataFlag[ix] & STRENGTH_WARNING_FLAG)
-                      Serial.println(F("S"));
-                  }
-                }
-                else {                                         // show clean data
-                  Serial.print(F("A,"));
-                  Serial.print(startingAngle + ix);
-                  Serial.print(F(","));
-                  Serial.print(int(aryDist[ix]));
-                  Serial.print(F(","));
-                  Serial.println(aryQuality[ix]);
-                }
-              }  // if (xv_config.aryAngles[startingAngle + ix])
-            }  // for (int ix = 0; ix < N_DATA_QUADS; ix++)
-          }  // if (xv_config.show_dist)
+          for (int ix = 0; ix < N_DATA_QUADS; ix++) {
+            if (xv_config.aryAngles[startingAngle + ix]) {             // if we're supposed to display that angle
+              if (aryInvalidDataFlag[ix] & BAD_DATA_MASK) {  // if LIDAR reported a data error...
+                if (aryInvalidDataFlag[ix] & INVALID_DATA_FLAG);
+                  //Handle invalid data
+                if (aryInvalidDataFlag[ix] & STRENGTH_WARNING_FLAG);
+                  // Handle weak data
+              }
+              else {                                         // show clean data
+                // Handle clean data
+              }
+            }  // if (xv_config.aryAngles[startingAngle + ix])
+          }  // for (int ix = 0; ix < N_DATA_QUADS; ix++)
         }  // if (eValidatePacket() == 0
-        else if (xv_config.show_errors) {                                // we have encountered a CRC error
-          Serial.println(F("C,CRC"));
-        }
         // initialize a bunch of stuff before we switch back to State 1
         for (int ix = 0; ix < N_DATA_QUADS; ix++) {
           aryDist[ix] = 0;
@@ -121,7 +106,6 @@ void Lidar::run() {
                lastMillis = milliseconds, last time through this subroutine
                xv_config.show_interval = true ==> display time interval once per revolution, at angle 0
    Calls:      digitalWrite() - used to toggle LED pin
-               Serial.print
    Returns:    The first angle (of 4) in the current 'index' group
 */
 uint16_t Lidar::processIndex() {
@@ -136,21 +120,6 @@ uint16_t Lidar::processIndex() {
       ledState = HIGH;
     }
     digitalWrite(ledPin, ledState);
-
-    if (xv_config.show_rpm) {
-      Serial.print(F("R,"));
-      Serial.print((int)motor_rpm);
-      Serial.print(F(","));
-      Serial.println((int)pwm_val);
-    }
-
-    curMillis = millis();
-    if (xv_config.show_interval) {
-      Serial.print(F("T,"));                                // Time Interval in ms since last complete revolution
-      Serial.println(curMillis - lastMillis);
-    }
-    lastMillis = curMillis;
-
   } // if (angle == 0)
   return angle;
 }
@@ -163,7 +132,6 @@ uint16_t Lidar::processIndex() {
    Uses:       Packet
                angle = if 0 then enable display of RPM and PWM
                xv_config.show_rpm = true if we're supposed to display RPM and PWM
-   Calls:      Serial.print
 */
 void Lidar::processSpeed() {
   motor_rph_low_byte = Packet[OFFSET_TO_SPEED_LSB];
@@ -260,12 +228,9 @@ byte Lidar::eValidatePacket() {
 }
 
 /*
-   initEEPROM
+   initConfig
 */
-void Lidar::initEEPROM() {
-  xv_config.id = 0x07;
-  strcpy(xv_config.version, "1.4.0");
-
+void Lidar::initConfig() {
   xv_config.motor_pwm_pin = 23;  // pin connected N-Channel Mosfet
   xv_config.rpm_setpoint = 300;  // desired RPM
   xv_config.rpm_min = 200;
@@ -279,114 +244,8 @@ void Lidar::initEEPROM() {
 
   xv_config.motor_enable = true;
   xv_config.raw_data = true;
-  xv_config.show_dist = false;
-  xv_config.show_rpm = false;
-  xv_config.show_interval = false;
-  xv_config.show_errors = false;
   for (int ix = 0; ix < N_ANGLES; ix++)
     xv_config.aryAngles[ix] = true;
-}
-
-/*
-   showAll - Show Dist, Errors, RPM, and Interval data
-*/
-void Lidar::showAll() {
-  showDist();
-  showErrors();
-  showRPM();
-  showInterval();
-}
-/*
-   hideAll - Hide Dist, Errors, RPM, and Interval data
-*/
-void Lidar::hideAll() {
-  hideDist();
-  hideErrors();
-  hideRPM();
-  hideInterval();
-}
-
-/*
-   showInterval - enable display of Time interval (which happens once per revolution, at angle 0
-*/
-void Lidar::showInterval() {
-  xv_config.show_interval = true;
-  if (xv_config.show_dist == false) {                  // suppress activity message if we're executing 'show distance'
-    Serial.println(F(" "));
-    Serial.println(F("Showing time interval (ms per revolution)"));
-  }
-}
-/*
-   hideInterval - suppress display of Time interval
-*/
-void Lidar::hideInterval() {
-  xv_config.show_interval = false;
-  if (xv_config.show_dist == false) {                  // suppress activity message if we're executing 'show distance'
-    Serial.println(F(" "));
-    Serial.println(F("Hiding time interval"));
-  }
-}
-
-/*
-   showErrors
-*/
-void Lidar::showErrors() {
-  xv_config.show_errors = true;                                  // enable error display
-  if (xv_config.show_dist == false) {                  // suppress activity message if we're executing 'show distance'
-    Serial.println(F(" "));
-    Serial.println(F("Showing errors"));
-  }
-}
-/*
-   hideErrors
-*/
-void Lidar::hideErrors() {                                    // disable error display
-  xv_config.show_errors = false;
-  if (xv_config.show_dist == false) {                  // suppress activity message if we're executing 'show distance'
-    Serial.println(F(" "));
-    Serial.println(F("Hiding errors"));
-  }
-}
-
-/*
-   showRPM
-*/
-void Lidar::showRPM() {
-  xv_config.show_rpm = true;
-  if (xv_config.raw_data == true) {
-    hideRaw();
-  }
-  if (xv_config.show_dist == false) {                  // suppress activity message if we're executing 'show distance'
-    Serial.println(F(" "));
-    Serial.println(F("Showing RPM data"));
-  }
-}
-/*
-   hideRPM
-*/
-void Lidar::hideRPM() {
-  xv_config.show_rpm = false;
-  if (xv_config.show_dist == false) {                  // suppress activity message if we're executing 'show distance'
-    Serial.println(F(" "));
-    Serial.println(F("Hiding RPM data"));
-  }
-}
-
-void Lidar::showDist() {
-  hideRaw();
-  if (xv_config.show_dist == false) {                  // suppress activity message if we're executing 'show distance'
-    Serial.println(F(" "));
-    Serial.println(F("Code,Angle,Distance(mm),Signal strength"));
-  }
-  xv_config.show_dist = true;
-}
-
-void Lidar::hideDist() {
-  xv_config.show_dist = false;
-  if (xv_config.show_dist == false) {                  // suppress activity message if we're executing 'show distance'
-    Serial.println(F(" "));
-    Serial.println(F("Hiding Distance data"));
-  }
 }
 
 /*
@@ -399,116 +258,19 @@ void Lidar::hideDist() {
    TEST THIS STRING:  SetAngles 16-20, 300-305, 123-124, 10
 */
 void Lidar::setAngle() {
-  char c, *arg;
-  boolean syntax_error = false;
-  int doing_from_to, from, to, ix, lToken, n_groups = 0;
-
-  for (ix = 0; ix < N_ANGLES; ix++)                      // initialize
-    xv_config.aryAngles[ix] = false;
-  doing_from_to = 0;                                     // state = doing 'from'
-  // Make sure that there is at least 1 angle or group of angles present
-  do {
-    arg = sCmd.next();                                   // get the next token
-    if (arg == NULL) {                                   // it's empty -- just exit
-      sCmd.readSerial();
-      arg = sCmd.next();
-      break;
-    }
-    // see if the token has an embedded "-", meaning from - to
-    lToken = strlen(arg);                                // get the length of the current token
-    for (ix = 0; ix < lToken; ix++) {
-      c = arg[ix];
-      if (c == ',') {                                    // optional trailing comma
-        doing_from_to = 0;
-        break;
-      }
-      else if (c == '-') {                               // optional '-' means "from - to"
-        to = 0;
-        doing_from_to = 1;                               // from now on, we're doing 'to'
-      }
-      else if (c == ' ') {                               // ignore blanks
-        Serial.println(F("{ }"));
-      }
-      else if ((c >= '0') && (c <= '9')) {
-        if (doing_from_to == 0) {
-          from *= 10;
-          from += c - '0';
-          to = from;                                      // default to = from
-          n_groups++;                                     // count the number of active groups (s/b >= 1)
-        }
-        else {
-          to *= 10;
-          to += c - '0';
-        }
-      }
-      else {
-        syntax_error = true;
-        n_groups = 0;
-        break;
-      }
-    }  // for (ix = 0; ix < lToken; ix++)
-    // validate 'from' and 'to' and set 'xv_config.aryAngles' with correct values
-    if ((from >= 0) && (from < N_ANGLES) && (to >= 0) && (to < N_ANGLES)) {
-      if (to >= from) {
-        for (ix = from; ix <= to; ix++) {
-          xv_config.aryAngles[ix] = true;
-        }
-      }
-      else {
-        syntax_error = true;
-        break;
-      }
-    }
-    else {
-      syntax_error = true;
-      break;
-    }
-    from = 0;
-    to = 0;
-    doing_from_to = 0;
-  }  // do
-  while (arg != NULL);
-  if (n_groups == 0)
-    syntax_error = true;
-
-  // Handle syntax errors
-  if (syntax_error) {
-    Serial.println(F(" "));
-    Serial.println(F("Incorrect syntax"));
-    Serial.println(F("  Example: SetAngle 0, 15-30, 45-50, 10"));
-    Serial.println(F("  Example: SetAngle 0-359 to show all angles."));
-    Serial.println(F("Notes: Use a space after each comma"));
-    Serial.println(F("       No particular order is required"));
-    Serial.println(F("       In a from-to pair, the 1st value must be lowest. From-to pairs can overlap ranges."));
-  }
-  else {                                                  // no errors detected, display the angles and start
-    // We're ready to process multiple angles
-    Serial.println(F(""));
-    Serial.print(F("Angles:"));
-    for (int ix = 0; ix < N_ANGLES; ix++) {               // display the angle array
-      if (xv_config.aryAngles[ix]) {
-        Serial.print(ix, DEC);
-        Serial.print(F(","));
-      }
-    }
-    Serial.println(F(""));
-    showDist();
-  }  // if not (syntax_error)
+  /* for (int ix = 0; ix < N_ANGLES; ix++)
+    xv_config.aryAngles[ix] = true; */
 }
 
 void Lidar::motorOff() {
   xv_config.motor_enable = false;
   analogWrite(xv_config.motor_pwm_pin, 0);
-  Serial.println(F(" "));
-  Serial.println(F("Motor off"));
 }
 
 void Lidar::motorOn() {
   xv_config.motor_enable = true;
   analogWrite(xv_config.motor_pwm_pin, pwm_val);
   rpm_err = 0;  // reset rpm error
-  Serial.println(F(" "));
-  Serial.println(F("Motor on"));
 }
 
 void Lidar::motorCheck() {  // Make sure the motor RPMs are good else shut it down
@@ -529,307 +291,26 @@ void Lidar::motorCheck() {  // Make sure the motor RPMs are good else shut it do
   }
 }
 
-void Lidar::hideRaw() {
-  xv_config.raw_data = false;
-  //Serial.println(F(" "));
-  //Serial.println(F("Raw lidar data disabled"));
-}
-
-void Lidar::showRaw() {
-  xv_config.raw_data = true;
-  hideDist();
-  hideRPM();
-  //Serial.println(F(" "));
-  //Serial.println(F("Lidar data enabled"));
-}
-
 void Lidar::setRPM() {
-  double sVal = 0.0;
-  char *arg;
-  boolean syntax_error = false;
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    sVal = atof(arg);    // Converts a char string to a float
-    if (sVal < xv_config.rpm_min) {
-      sVal = xv_config.rpm_min;
-      Serial.println(F(" "));
-      Serial.print(F("RPM too low. Setting to minimum "));
-      Serial.println(xv_config.rpm_min);
-    }
-    if (sVal > xv_config.rpm_max) {
-      sVal = xv_config.rpm_max;
-      Serial.println(F(" "));
-      Serial.print(F("RPM too high. Setting to maximum "));
-      Serial.println(xv_config.rpm_max);
-    }
-  }
-  else {
-    syntax_error = true;
-  }
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    syntax_error = true;
-  }
-
-  if (syntax_error) {
-    Serial.println(F(" "));
-    Serial.println(F("Incorrect syntax.  Example: SetRPM 200"));
-  }
-  else {
-    Serial.print(F("Old RPM setpoint:"));
-    Serial.println(xv_config.rpm_setpoint);
-    xv_config.rpm_setpoint = sVal;
-    //Serial.println(F(" "));
-    Serial.print(F("New RPM setpoint: "));
-    Serial.println(sVal);
-  }
+  // xv_config.rpm_setpoint = ;
 }
 
 void Lidar::setKp() {
-  double sVal = 0.0;
-  char *arg;
-  boolean syntax_error = false;
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    sVal = atof(arg);    // Converts a char string to a float
-  }
-  else {
-    syntax_error = true;
-  }
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    syntax_error = true;
-  }
-
-  if (syntax_error) {
-    Serial.println(F(" "));
-    Serial.println(F("Incorrect syntax.  Example: SetKp 1.0"));
-  }
-  else {
-    Serial.println(F(" "));
-    Serial.print(F("Setting Kp to: "));
-    Serial.println(sVal);
-    xv_config.Kp = sVal;
-    rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd);
-  }
+  /* xv_config.Kp = sVal;
+  rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd); */
 }
 
 void Lidar::setKi() {
-  double sVal = 0.0;
-  char *arg;
-  boolean syntax_error = false;
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    sVal = atof(arg);    // Converts a char string to a float
-  }
-  else {
-    syntax_error = true;
-  }
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    syntax_error = true;
-  }
-
-  if (syntax_error) {
-    Serial.println(F(" "));
-    Serial.println(F("Incorrect syntax.  Example: SetKi 0.5"));
-  }
-  else {
-    Serial.println(F(" "));
-    Serial.print(F("Setting Ki to: "));
-    Serial.println(sVal);
-    xv_config.Ki = sVal;
-    rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd);
-  }
+  /* xv_config.Ki = sVal;
+  rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd); */
 }
 
 void Lidar::setKd() {
-  double sVal = 0.0;
-  char *arg;
-  boolean syntax_error = false;
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    sVal = atof(arg);    // Converts a char string to a float
-  }
-  else {
-    syntax_error = true;
-  }
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    syntax_error = true;
-  }
-
-  if (syntax_error) {
-    Serial.println(F(" "));
-    Serial.println(F("Incorrect syntax.  Example: SetKd 0.001"));
-  }
-  else {
-    Serial.println(F(" "));
-    Serial.print(F("Setting Kd to: "));
-    Serial.println(sVal);
-    xv_config.Kd = sVal;
-    rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd);
-  }
+  /* xv_config.Kd = sVal;
+  rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd); */
 }
 
 void Lidar::setSampleTime() {
-  double sVal = 0.0;
-  char *arg;
-  boolean syntax_error = false;
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    sVal = atoi(arg);    // Converts a char string to an integer
-  }
-  else {
-    syntax_error = true;
-  }
-
-  arg = sCmd.next();
-  if (arg != NULL) {
-    syntax_error = true;
-  }
-
-  if (syntax_error) {
-    Serial.println(F(" "));
-    Serial.println(F("Incorrect syntax.  Example: SetSampleTime 20"));
-  }
-  else {
-    Serial.println(F(" "));
-    Serial.print(F("Setting Sample time to: "));
-    Serial.println(sVal);
-    xv_config.sample_time = sVal;
-    rpmPID.SetSampleTime(xv_config.sample_time);
-  }
-}
-
-void Lidar::help() {
-  if (xv_config.raw_data == true) {
-    hideRaw();
-  }
-  Serial.println(F(" "));
-  Serial.println(F(" "));
-
-  Serial.print(F("XV Lidar Controller Firmware Version "));
-  Serial.println(xv_config.version);
-  Serial.print(F("GetSurreal.com *"));
-
-  Serial.println(F(" "));
-  Serial.println(F(" "));
-
-  Serial.println(F("List of available commands"));
-
-  Serial.println(F(" "));
-  Serial.println(F("Control commands"));
-  Serial.println(F("  ShowConfig    - Show the running configuration"));
-  Serial.println(F("  SaveConfig    - Save the running configuration to EEPROM"));
-  Serial.println(F("  ResetConfig   - Restore the original configuration"));
-  Serial.println(F("  SetAngle      - Show distance data for a multiple angles (Ex: SetAngle 0, 15-30, 45-50, 10)"));
-  Serial.println(F("  SetRPM        - Set the desired rotation speed (min: 180, max: 349)"));
-  Serial.println(F("  MotorOff      - Stop spinning the lidar"));
-  Serial.println(F("  MotorOn       - Enable spinning of the lidar"));
-
-  Serial.println(F(" "));
-  Serial.println(F("Data commands"));
-  Serial.println(F("  ShowRaw       - Enable the output of the raw lidar data (default)"));
-  Serial.println(F("  HideRaw       - Stop outputting the raw data from the lidar"));
-  Serial.println(F("  ShowDist      - Show angles with distance data"));
-  Serial.println(F("  HideDist      - Hide the distance data"));
-  Serial.println(F("  ShowErrors    - Show all error types (CRC, Signal Strength, and Invalid"));
-  Serial.println(F("  HideErrors    - Hide angles with errors"));
-  Serial.println(F("  ShowRPM       - Show the rotation speed"));
-  Serial.println(F("  HideRPM       - Hide the rotation speed"));
-  Serial.println(F("  ShowInterval  - Show time interval per revolution in ms, at angle=0"));
-  Serial.println(F("  HideInterval  - Hide time interval"));
-  Serial.println(F("  ShowAll       - Show the distance, errors, RPMs and interval data"));
-  Serial.println(F("  HideAll       - Hide the distance, errors, RPMs and interval data"));
-
-  Serial.println(F(" "));
-  Serial.println(F("PID commands"));
-  Serial.println(F("  SetKp         - Set the proportional gain"));
-  Serial.println(F("  SetKi         - Set the integral gain"));
-  Serial.println(F("  SetKd         - Set the derivative gain"));
-  Serial.println(F("  SetSampleTime - Set the frequency the PID is calculated (ms)"));
-
-  Serial.println(F(" "));
-  Serial.println(F("Output comma-separated format:"));
-  Serial.println(F("  A,<Angle>,<Distance in mm>,<Strength>"));
-  Serial.println(F("  C,CRC error was generated by LIDAR"));
-  Serial.println(F("  R,<RPMs>,<PWM value>"));
-  Serial.println(F("  T,<Time interval in milliseconds>"));
-
-  Serial.println(F(" "));
-  Serial.println(F("Errors:"));
-  Serial.println(F("  CRC = CRC Error"));
-  Serial.println(F("    I = LIDAR reports Invalid data for this angle"));
-  Serial.println(F("    S = LIDAR reports Poor signal strength for this angle"));
-  Serial.println(F(" "));
-}
-
-void Lidar::showConfig() {
-  if (xv_config.raw_data == true) {
-    hideRaw();
-  }
-  Serial.println(F(" "));
-  Serial.println(F(" "));
-
-  Serial.print(F("XV Lidar Controller Firmware Version "));
-  Serial.println(xv_config.version);
-  Serial.print(F("GetSurreal.com"));
-
-  Serial.println(F(" "));
-  Serial.println(F(" "));
-
-  Serial.print(F("PWM pin: "));
-  Serial.println(xv_config.motor_pwm_pin);
-
-  Serial.print(F("Target RPM: "));
-  Serial.println(xv_config.rpm_setpoint);
-
-  Serial.print(F("Max PWM: "));
-  Serial.println(xv_config.pwm_max);
-  Serial.print(F("Min PWM: "));
-  Serial.println(xv_config.pwm_min);
-
-  Serial.print(F("PID Kp: "));
-  Serial.println(xv_config.Kp);
-  Serial.print(F("PID Ki: "));
-  Serial.println(xv_config.Ki);
-  Serial.print(F("PID Kd: "));
-  Serial.println(xv_config.Kd);
-  Serial.print(F("SampleTime: "));
-  Serial.println(xv_config.sample_time);
-
-  Serial.print(F("Motor Enable: "));
-  Serial.println(xv_config.motor_enable);
-  Serial.print(F("Show Raw Data: "));
-  Serial.println(xv_config.raw_data);
-  Serial.print(F("Show Dist Data: "));
-  Serial.println(xv_config.show_dist);
-  Serial.print(F("Show RPM Data: "));
-  Serial.println(xv_config.show_rpm);
-  Serial.print(F("Show Time Interval: "));
-  Serial.println(xv_config.show_interval);
-  Serial.print(F("Show Angle(s): "));
-  for (int ix = 0; ix < N_ANGLES; ix++) {               // display the angle array
-    if (xv_config.aryAngles[ix]) {
-      Serial.print(ix, DEC);
-      Serial.print(F(","));
-    }
-  }
-  Serial.println(F(" "));
-  Serial.println(F(" "));
-}
-
-
-void Lidar::saveConfig() {
-  Serial.println(F("Config Saved."));
+  /* xv_config.sample_time = sVal;
+  rpmPID.SetSampleTime(xv_config.sample_time); */
 }

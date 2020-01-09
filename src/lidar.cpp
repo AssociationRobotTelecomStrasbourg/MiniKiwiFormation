@@ -23,7 +23,6 @@ Lidar::Lidar() : rpmPID(&motor_rpm, &pwm_val, &xv_config.rpm_setpoint, xv_config
 void Lidar::run() {
   byte aryInvalidDataFlag[N_DATA_QUADS] = {0, 0, 0, 0}; // non-zero = INVALID_DATA_FLAG or STRENGTH_WARNING_FLAG is set
 
-  sCmd.readSerial();  // check for incoming serial commands
   if (Serial1.available() > 0) {                  // read byte from LIDAR and relay to USB
     inByte = Serial1.read();                      // get incoming byte:
     if (xv_config.raw_data)

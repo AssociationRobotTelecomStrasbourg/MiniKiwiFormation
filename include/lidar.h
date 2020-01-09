@@ -1,10 +1,8 @@
 #ifndef LIDAR_H
 #define LIDAR_H
 
+#include <Arduino.h>
 #include <PID.h>
-#include <SerialCommand.h>
-
-
 
 const int N_ANGLES = 360;                // # of angles (0..359)
 const int SHOW_ALL_ANGLES = N_ANGLES;    // value means 'display all angle data, 0..359'
@@ -98,13 +96,11 @@ private:
     uint8_t inByte = 0;  // incoming serial byte
     uint8_t motor_rph_high_byte = 0;
     uint8_t motor_rph_low_byte = 0;
-    uint16_t aryDist[N_DATA_QUADS] = {0, 0, 0, 0};   // thre are (4) distances, one for each data quad
+    uint16_t aryDist[N_DATA_QUADS] = {0, 0, 0, 0};   // there are (4) distances, one for each data quad
     // so the maximum distance is 16383 mm (0x3FFF)
     uint16_t aryQuality[N_DATA_QUADS] = {0, 0, 0, 0}; // same with 'quality'
     uint16_t motor_rph = 0;
     uint16_t startingAngle = 0;                      // the first scan angle (of group of 4, based on 'index'), in degrees (0..359)
-
-    SerialCommand sCmd;
 
     boolean ledState = LOW;
 

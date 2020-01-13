@@ -4,34 +4,17 @@ serial:
 
 subplots:
     -
-        pos: 131
-        title: 'X'
-        min: -100
+        pos: 111
+        title: 'Lidar scan'
+        min: 0
         max: 100
-    -
-        pos: 132
-        title: 'Y'
-        min: -100
-        max: 100
-    -
-        pos: 133
-        title: 'Theta'
-        min: -10
-        max: 10
 data:
     read:
         -
-            label: 'x'
-            type: 'float'
-            pos: 131
+            label: 'angle'
+            type: 'uint16'
+            pos: 111
         -
-            label: 'y'
-            type: 'float'
-            pos: 132
-        -
-            label: 'theta'
-            type: 'float'
-            pos: 133
-    write:
-        -
-            type: 'float'
+            label: 'distance'
+            type: 'uint16'
+            pos: 111

@@ -1,27 +1,44 @@
 # MiniKiwiFormation
 
+## Lidar
+
+- [ ] Use SerialInterface to display the lidar data
+  - [x] Updated config.yml
+  - [ ] Deactivate raw data relay
+  - [ ] Put to zero angle with an error
+  - [ ] Transmit angle by angle to serial
+  - [ ] Change plot to polar coordinates
+- [ ] Motor/PID
+  - [ ] Use customPID
+  - [ ] Set reference
+  - [ ] Set kp, ki, kd
+  - [ ] Set min, max pwm
+  - [ ] Set sample time
+- [ ] Handle data error
+- [ ] Set which angle to ignore
+- [ ] Initialize the variable in lidar.cpp
+- [ ] Develop algorithm for data manipulation
+  - [ ] Idea from [LidarObstacleDetection](https://github.com/enginBozkurt/LidarObstacleDetection)
+    - Filtering
+    - Segmentation
+    - Clustering
+    - Bound Box
+
+### Data format
+
+Variable | Type | Description
+-------- | ---- | -----------
+motor_rpm | uint16_t | lidar rpm
+aryDist | uint16_t[4] | 4 distance
+aryQuality | uint16_t[4] | 4 signal strength
+angle | uint16_t | First angle measured [0,4,…,356]
+
 ## Software
 
-- [ ] Lidar
-  - [ ] Use SerialInterface to display the lidar data
-  - [ ] Motor/PID
-    - [ ] Use customPID
-    - [ ] Set reference
-    - [ ] Set kp, ki, kd
-    - [ ] Set min, max pwm
-    - [ ] Set sample time
-  - [ ] Handle data error
-  - [ ] Set which angle to ignore
-  - [ ] Initialize the variable in lidar.cpp
-  - [ ] Develop algorithm for data manipulation
-    - [ ] Idea from [LidarObstacleDetection](https://github.com/enginBozkurt/LidarObstacleDetection)
-      - Filtering
-      - Segmentation
-      - Clustering
-      - Bound Box
 - [ ] Add position control
 - [x] Modify Motor to include Encoder and PID
 - [x] Add correction ratio to odometry
+
 
 ## Documents de référence à écrire
 

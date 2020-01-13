@@ -78,9 +78,9 @@ public:
     void setSampleTime();
 
 private:
-    double pwm_val = 127;          // start with ~50% power
-    double pwm_last;
-    double motor_rpm;
+    float pwm_val = 127;          // start with ~50% power
+    float pwm_last;
+    float motor_rpm;
     unsigned long now;
     unsigned long motor_check_timer = millis();
     unsigned long motor_check_interval = 200;
@@ -106,17 +106,17 @@ private:
 
     struct config_t {
         int motor_pwm_pin;            // pin connected to mosfet for motor speed control
-        double rpm_setpoint;          // desired RPM (uses double to be compatible with PID library)
-        double rpm_min;
-        double rpm_max;
-        double pwm_max;              // max analog value.  probably never needs to change from 1023
-        double pwm_min;              // min analog pulse value to spin the motor
+        float rpm_setpoint;          // desired RPM (uses float to be compatible with PID library)
+        float rpm_min;
+        float rpm_max;
+        float pwm_max;              // max analog value.  probably never needs to change from 1023
+        float pwm_min;              // min analog pulse value to spin the motor
         int sample_time;             // how often to calculate the PID values
 
         // PID tuning values
-        double Kp;
-        double Ki;
-        double Kd;
+        float Kp;
+        float Ki;
+        float Kd;
 
         boolean motor_enable;        // to spin the laser or not.  No data when not spinning
         boolean raw_data;            // to retransmit the seiral data to the USB port

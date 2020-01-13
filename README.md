@@ -3,6 +3,7 @@
 ## Software
 
 - [ ] Lidar
+  - [ ] Use SerialInterface to display the lidar data
   - [ ] Motor/PID
     - [ ] Use customPID
     - [ ] Set reference
@@ -10,7 +11,6 @@
     - [ ] Set min, max pwm
     - [ ] Set sample time
   - [ ] Handle data error
-  - [ ] Transmit data
   - [ ] Set which angle to ignore
   - [ ] Initialize the variable in lidar.cpp
   - [ ] Develop algorithm for data manipulation
@@ -19,9 +19,9 @@
       - Segmentation
       - Clustering
       - Bound Box
+- [ ] Add position control
 - [x] Modify Motor to include Encoder and PID
 - [x] Add correction ratio to odometry
-- [ ] Add position control
 
 ## Documents de référence à écrire
 

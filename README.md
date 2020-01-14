@@ -39,7 +39,6 @@ angle | uint16_t | First angle measured [0,4,…,356]
 - [x] Modify Motor to include Encoder and PID
 - [x] Add correction ratio to odometry
 
-
 ## Documents de référence à écrire
 
 - [ ] Documentation carte miniKiwi

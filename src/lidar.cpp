@@ -250,7 +250,7 @@ void Lidar::initConfig() {
   xv_config.Kd = 0.0;
 
   xv_config.motor_enable = true;
-  xv_config.raw_data = true;
+  xv_config.raw_data = false;
   for (int ix = 0; ix < N_ANGLES; ix++)
     xv_config.aryAngles[ix] = true;
 }

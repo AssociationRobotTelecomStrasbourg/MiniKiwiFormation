@@ -7,6 +7,7 @@ Lidar::Lidar() : rpmPID(xv_config.Kp, xv_config.Ki, xv_config.Kd) {
   Serial.begin(115200);                    // USB serial
   Serial1.begin(115200);                   // XV LDS data
 
+
   rpmPID.setOutputLimits(xv_config.pwm_min, xv_config.pwm_max);
   rpmPID.setTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd);
   rpmPID.setMode(true);
@@ -19,6 +20,7 @@ Lidar::Lidar() : rpmPID(xv_config.Kp, xv_config.Ki, xv_config.Kd) {
   ixPacket = 0;
 
   curMillis = oldMillis = 0;
+  while(!Serial);
 }
 
 void Lidar::run() {
@@ -63,6 +65,10 @@ void Lidar::run() {
               else {                                         // show clean data
                 // Handle clean data
               }
+              scan_data.angle = startingAngle + ix;
+              scan_data.distance = aryDist[ix];
+              scan_data.quality = aryQuality[ix];
+              writeData(&scan_data, sizeof(scan_data));
             }  // if (xv_config.aryAngles[startingAngle + ix])
           }  // for (int ix = 0; ix < N_DATA_QUADS; ix++)
         }  // if (eValidatePacket() == 0

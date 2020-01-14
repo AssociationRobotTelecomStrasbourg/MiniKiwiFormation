@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <pid.h>
+#include <binserial.h>
 
 const int N_ANGLES = 360;                // # of angles (0..359)
 const int SHOW_ALL_ANGLES = N_ANGLES;    // value means 'display all angle data, 0..359'
@@ -123,6 +124,13 @@ private:
         boolean aryAngles[N_ANGLES]; // array of angles to display
     }
     xv_config;
+
+    struct scan_t {
+        uint16_t angle;
+        uint16_t distance;
+        uint16_t quality;
+    }
+    scan_data;
 
     uint32_t curMillis, oldMillis;
 };

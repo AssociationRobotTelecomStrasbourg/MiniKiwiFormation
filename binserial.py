@@ -103,21 +103,20 @@ class BinSerial:
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument("-p", "--port-name", default='/dev/ttyUSB0',
+    ap.add_argument("-p", "--port-name", default='/dev/ttyACM0',
                     help="Port name of the serial port")
     args = vars(ap.parse_args())
 
     port_name = args['port_name']
-    baud_rate = 9600
+    baud_rate = 115200
 
     # Define the format of the structure of the data
-    struct_format = ['uint32'] + ['float']*4 + ['bool']*2
+    struct_format = ['uint16']*3
 
     # Initialize connection
     bser = BinSerial(port_name, baud_rate)
 
     # Test echo
-    bser.write(struct_format, [10, 0, 0, 0, 0, True, False])
-    data = bser.read(struct_format)
-
-    print(data)
+    while(True):
+        data = bser.read(struct_format)
+        print(data)

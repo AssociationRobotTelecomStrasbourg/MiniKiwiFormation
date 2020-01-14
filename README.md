@@ -2,11 +2,12 @@
 
 ## Lidar
 
-- [ ] Use SerialInterface to display the lidar data
+- [ ] Display the scan data
   - [x] Updated config.yml
-  - [ ] Deactivate raw data relay
-  - [ ] Put to zero angle with an error
-  - [ ] Transmit angle by angle to serial
+  - [x] Deactivate raw data relay
+  - [x] Put to zero angle with an error
+  - [x] Transmit angle by angle to serial
+  - [x] Print data with binserial
   - [ ] Change plot to polar coordinates
 - [ ] Motor/PID
   - [x] Use customPID

@@ -2,7 +2,7 @@
 #define LIDAR_H
 
 #include <Arduino.h>
-#include <PID.h>
+#include <pid.h>
 
 const int N_ANGLES = 360;                // # of angles (0..359)
 const int SHOW_ALL_ANGLES = N_ANGLES;    // value means 'display all angle data, 0..359'
@@ -123,6 +123,8 @@ private:
         boolean aryAngles[N_ANGLES]; // array of angles to display
     }
     xv_config;
+
+    uint32_t curMillis, oldMillis;
 };
 
 #endif

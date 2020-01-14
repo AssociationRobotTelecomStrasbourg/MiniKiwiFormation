@@ -9,7 +9,7 @@
   - [ ] Transmit angle by angle to serial
   - [ ] Change plot to polar coordinates
 - [ ] Motor/PID
-  - [ ] Use customPID
+  - [x] Use customPID
   - [ ] Set reference
   - [ ] Set kp, ki, kd
   - [ ] Set min, max pwm

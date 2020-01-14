@@ -1,16 +1,15 @@
 #include "lidar.h"
 
 // initialization
-Lidar::Lidar() : rpmPID(&motor_rpm, &pwm_val, &xv_config.rpm_setpoint, xv_config.Kp, xv_config.Ki, xv_config.Kd, DIRECT) {
+Lidar::Lidar() : rpmPID(xv_config.Kp, xv_config.Ki, xv_config.Kd) {
   initConfig();
   pinMode(xv_config.motor_pwm_pin, OUTPUT);
   Serial.begin(115200);                    // USB serial
   Serial1.begin(115200);                   // XV LDS data
 
-  rpmPID.SetOutputLimits(xv_config.pwm_min, xv_config.pwm_max);
-  rpmPID.SetSampleTime(xv_config.sample_time);
-  rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd);
-  rpmPID.SetMode(AUTOMATIC);
+  rpmPID.setOutputLimits(xv_config.pwm_min, xv_config.pwm_max);
+  rpmPID.setTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd);
+  rpmPID.setMode(true);
 
   pinMode(ledPin, OUTPUT);
 
@@ -18,6 +17,8 @@ Lidar::Lidar() : rpmPID(&motor_rpm, &pwm_val, &xv_config.rpm_setpoint, xv_config
   for (ixPacket = 0; ixPacket < PACKET_LENGTH; ixPacket++)  // Initialize
     Packet[ixPacket] = 0;
   ixPacket = 0;
+
+  curMillis = oldMillis = 0;
 }
 
 void Lidar::run() {
@@ -79,10 +80,17 @@ void Lidar::run() {
     }  // if (eState == eState_Find_COMMAND)
   }  // if (Serial1.available() > 0)
   if (xv_config.motor_enable) {
-    rpmPID.Compute();
-    if (pwm_val != pwm_last) {
-      analogWrite(xv_config.motor_pwm_pin, pwm_val);  // replacement for analogWrite()
-      pwm_last = pwm_val;
+    curMillis = millis();
+    if (curMillis - oldMillis > xv_config.sample_time) {
+      rpmPID.setInput(motor_rpm);
+      rpmPID.setSetpoint(xv_config.rpm_setpoint);
+      rpmPID.compute();
+      pwm_val = rpmPID.getOutput();
+
+      if (pwm_val != pwm_last) {
+        analogWrite(xv_config.motor_pwm_pin, pwm_val);  // replacement for analogWrite()
+        pwm_last = pwm_val;
+      }
     }
     motorCheck();
   }  // if (xv_config.motor_enable)

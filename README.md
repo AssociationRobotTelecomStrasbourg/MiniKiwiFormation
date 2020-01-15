@@ -8,6 +8,8 @@
   - [x] Put to zero angle with an error
   - [x] Transmit angle by angle to serial
   - [x] Print data with binserial
+  - [x] Display data in a plot
+  - [ ] Fix quality and distance inversion in the label
   - [ ] Change plot to polar coordinates
 - [ ] Motor/PID
   - [x] Use customPID

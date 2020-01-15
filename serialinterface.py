@@ -2,18 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from PyQt5.QtWidgets import (QApplication, QWidget, QHBoxLayout)
+from PyQt5 import (QtCore, QtWidgets, uic)
 import yaml
 import threading
 from binserial import BinSerial
 from easyplot import EasyPlot
 
-class SerialInterface(QWidget):
+class SerialInterface(QtWidgets.QWidget):
     def __init__(self):
-        super().__init__()
+        super(SerialInterface, self).__init__()
         self.init_config()
         self.init_ui()
-        self.init_serial()
+        # self.init_serial()
 
     def init_config(self):
         # Load configuration file
@@ -44,12 +44,11 @@ class SerialInterface(QWidget):
         #     self.write_format.append(widget['type'])
 
     def init_ui(self):
-        self.setWindowTitle('SerialInterface')
+        uic.loadUi('serialinterface.ui', self)
 
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(self.easyplot)
-
-        self.setLayout(main_layout)
+        plot_layout = QtWidgets.QVBoxLayout(self.plot_widget)
+        plot_layout.addWidget(self.easyplot)
+        plot_layout.setContentsMargins(0, 0, 0, 0)
 
     def init_serial(self):
         self.bser = BinSerial(self.serial['port'], self.serial['baud'])
@@ -74,7 +73,7 @@ class SerialInterface(QWidget):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     serialinterface = SerialInterface()
     serialinterface.show()
     sys.exit(app.exec_())

@@ -7,7 +7,7 @@ subplots:
         pos: 111
         title: 'Lidar scan'
         min: 0
-        max: 100
+        max: 5000
 data:
     read:
         -

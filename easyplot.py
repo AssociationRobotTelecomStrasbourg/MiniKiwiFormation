@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore
 import collections
+import numpy as np
 
 class EasyPlot(FigureCanvas):
     def __init__(self, parent=None):
@@ -25,7 +26,7 @@ class EasyPlot(FigureCanvas):
         # Add plots
         self.plots = {}
 
-        self.nb_point = 200
+        self.nb_point = 360
 
         # Declare plot data
         self.data = {}
@@ -36,9 +37,9 @@ class EasyPlot(FigureCanvas):
         self.axes[pos].set_ylim(min, max)
 
     def add_plot(self, pos, label):
-        self.plots[(pos, label)] = self.axes[pos].plot([], [], label=label)[0]
-        self.data[(pos, label)] = [collections.deque([0]*self.nb_point, self.nb_point),
-                                   collections.deque([0]*self.nb_point, self.nb_point)]
+        self.plots[(pos, label)] = self.axes[pos].polar([], [], label=label)[0]
+        self.data[(pos, label)] = [np.linspace(0,2*np.pi,self.nb_point),
+                                   np.zeros(self.nb_point)]
         self.axes[pos].legend()
 
         return self.data[(pos, label)]
@@ -47,8 +48,8 @@ class EasyPlot(FigureCanvas):
         for key in self.plots:
             self.plots[key].set_data(self.data[key])
 
-        for key in self.axes:
-            self.axes[key].relim()
-            self.axes[key].autoscale_view(True,True,False)
+        # for key in self.axes:
+        #     self.axes[key].relim()
+        #     self.axes[key].autoscale_view(True,True,False)
 
         self.draw()

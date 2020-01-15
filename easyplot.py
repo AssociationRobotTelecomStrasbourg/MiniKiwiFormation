@@ -37,7 +37,7 @@ class EasyPlot(FigureCanvas):
         self.axes[pos].set_ylim(min, max)
 
     def add_plot(self, pos, label):
-        self.plots[(pos, label)] = self.axes[pos].polar([], [], label=label)[0]
+        self.plots[(pos, label)] = self.axes[pos].plot([], [], label=label)[0]
         self.data[(pos, label)] = [np.linspace(0,2*np.pi,self.nb_point),
                                    np.zeros(self.nb_point)]
         self.axes[pos].legend()
@@ -48,8 +48,8 @@ class EasyPlot(FigureCanvas):
         for key in self.plots:
             self.plots[key].set_data(self.data[key])
 
-        # for key in self.axes:
-        #     self.axes[key].relim()
-        #     self.axes[key].autoscale_view(True,True,False)
+        for key in self.axes:
+            self.axes[key].relim()
+            self.axes[key].autoscale_view(True,True,False)
 
         self.draw()

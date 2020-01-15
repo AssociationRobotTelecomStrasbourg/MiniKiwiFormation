@@ -18,3 +18,7 @@ data:
             label: 'distance'
             type: 'uint16'
             pos: 111
+        -
+            label: 'quality'
+            type: 'uint16'
+            pos: 111

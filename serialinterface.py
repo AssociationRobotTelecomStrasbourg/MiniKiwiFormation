@@ -33,14 +33,15 @@ class SerialInterface(QWidget):
         # Initialise the plots for reading
         self.read_format = []
         self.plot_data = []
-        for plot in config['data']['read']:
+        for i, plot in enumerate(config['data']['read']):
             self.read_format.append(plot['type'])
-            self.plot_data.append(self.easyplot.add_plot(plot['pos'], plot['label']))
+            if i != 0:
+                self.plot_data.append(self.easyplot.add_plot(plot['pos'], plot['label']))
 
         # Initialise for writing
-        self.write_format = []
-        for widget in config['data']['write']:
-            self.write_format.append(widget['type'])
+        # self.write_format = []
+        # for widget in config['data']['write']:
+        #     self.write_format.append(widget['type'])
 
     def init_ui(self):
         self.setWindowTitle('SerialInterface')
@@ -56,23 +57,20 @@ class SerialInterface(QWidget):
         self.read_thread = threading.Thread(target=self.read_serial, args=(self.bser, self.read_format, self.plot_data), daemon=True)
         self.read_thread.start()
 
-        self.write_thread = threading.Thread(target=self.write_serial, args=(self.bser, self.write_format, self.plot_data), daemon=True)
-        self.write_thread.start()
+        # self.write_thread = threading.Thread(target=self.write_serial, args=(self.bser, self.write_format, self.plot_data), daemon=True)
+        # self.write_thread.start()
 
     def read_serial(self, bser, read_format, plot_data):
-        i = 0
         while (True):
-            i += 1
             data = bser.read(read_format)
-            for j in range(len(read_format)):
-                plot_data[j][0].append(i)
-                plot_data[j][1].append(data[j])
+            for j in range(1, len(read_format)-1):
+                plot_data[j][1][data[0]] = data[j]
 
-    def write_serial(self, bser, write_format, plot_data):
-        """run the step response and get the measures"""
-        # Write some data to the arduino
-        while (True):
-            self.bser.write(write_format, [float(input("write: "))])
+    # def write_serial(self, bser, write_format, plot_data):
+    #     """run the step response and get the measures"""
+    #     # Write some data to the arduino
+    #     while (True):
+    #         self.bser.write(write_format, [float(input("write: "))])
 
 
 if __name__ == '__main__':

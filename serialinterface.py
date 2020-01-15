@@ -63,8 +63,8 @@ class SerialInterface(QWidget):
     def read_serial(self, bser, read_format, plot_data):
         while (True):
             data = bser.read(read_format)
-            for j in range(1, len(read_format)-1):
-                plot_data[j][1][data[0]] = data[j]
+            for j in range(1, len(read_format)):
+                plot_data[j-1][1][data[0]] = data[j]
 
     # def write_serial(self, bser, write_format, plot_data):
     #     """run the step response and get the measures"""

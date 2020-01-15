@@ -32,12 +32,12 @@ class EasyPlot(FigureCanvas):
         self.data = {}
 
     def add_subplot(self, pos, title, min, max):
-        self.axes[pos] = self.fig.add_subplot(pos)
+        self.axes[pos] = self.fig.add_subplot(pos, polar=True)
         self.axes[pos].set_title(title)
         self.axes[pos].set_ylim(min, max)
 
     def add_plot(self, pos, label):
-        self.plots[(pos, label)] = self.axes[pos].plot([], [], label=label)[0]
+        self.plots[(pos, label)] = self.axes[pos].plot([], [], label=label, marker='o', markersize=1, linestyle='None')[0]
         self.data[(pos, label)] = [np.linspace(0,2*np.pi,self.nb_point),
                                    np.zeros(self.nb_point)]
         self.axes[pos].legend()

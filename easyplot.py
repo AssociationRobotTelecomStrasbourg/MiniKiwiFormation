@@ -31,8 +31,8 @@ class EasyPlot(FigureCanvas):
         # Declare plot data
         self.data = {}
 
-    def add_subplot(self, pos, title, min, max):
-        self.axes[pos] = self.fig.add_subplot(pos, polar=True)
+    def add_subplot(self, pos, title, min, max, polar):
+        self.axes[pos] = self.fig.add_subplot(pos, polar=polar)
         self.axes[pos].set_title(title)
         self.axes[pos].set_ylim(min, max)
 

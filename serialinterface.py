@@ -28,7 +28,7 @@ class SerialInterface(QWidget):
 
         # Initialise the subplots
         for subplot in config['subplots']:
-            self.easyplot.add_subplot(subplot['pos'], subplot['title'], subplot['min'], subplot['max'])
+            self.easyplot.add_subplot(subplot['pos'], subplot['title'], subplot['min'], subplot['max'], subplot['polar'])
 
         # Initialise the plots for reading
         self.read_format = []

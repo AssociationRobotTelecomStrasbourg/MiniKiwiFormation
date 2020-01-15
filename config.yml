@@ -8,6 +8,7 @@ subplots:
         title: 'Lidar scan'
         min: 0
         max: 4000
+        polar: True
 data:
     read:
         -

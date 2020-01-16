@@ -8,18 +8,28 @@ subplots:
         title: 'Lidar scan'
         min: 0
         max: 4000
+        nb_point: 360
         polar: True
+        x-axis: False
 data:
     read:
         -
             label: 'angle'
             type: 'uint16'
             pos: 111
+            x-data: True
         -
             label: 'distance'
             type: 'uint16'
             pos: 111
+            x-data: False
         -
             label: 'quality'
             type: 'uint16'
             pos: 111
+            x-data: False
+    write:
+        -
+            label: ''
+            type: ''
+            widget: ''

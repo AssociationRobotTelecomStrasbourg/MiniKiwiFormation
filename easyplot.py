@@ -26,20 +26,21 @@ class EasyPlot(FigureCanvas):
         # Add plots
         self.plots = {}
 
-        self.nb_point = 360
+        self.nb_points = {}
 
         # Declare plot data
         self.data = {}
 
-    def add_subplot(self, pos, title, min, max, polar):
+    def add_subplot(self, pos, title, min, max, nb_point, polar):
         self.axes[pos] = self.fig.add_subplot(pos, polar=polar)
         self.axes[pos].set_title(title)
         self.axes[pos].set_ylim(min, max)
+        self.nb_points[pos] = nb_point
 
     def add_plot(self, pos, label):
         self.plots[(pos, label)] = self.axes[pos].plot([], [], label=label, marker='o', markersize=1, linestyle='None')[0]
-        self.data[(pos, label)] = [np.linspace(0,2*np.pi,self.nb_point),
-                                   np.zeros(self.nb_point)]
+        self.data[(pos, label)] = [np.linspace(0,2*np.pi,self.nb_points[pos]),
+                                   np.zeros(self.nb_points[pos])]
         self.axes[pos].legend()
 
         return self.data[(pos, label)]

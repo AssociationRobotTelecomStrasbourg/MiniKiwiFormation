@@ -11,6 +11,15 @@
   - [x] Display data in a plot
   - [x] Fix quality and distance inversion in the label
   - [x] Change plot to polar coordinates
+  - [ ] Generalize SerialInterface
+    - [ ] Read and plot any type of data
+      - [x] Choose number of points per plot lines
+      - [x] Choose between polar or xy plot
+      - [ ] Option to give x data or not
+    - [ ] Write any type of data with Qt widgets
+      - [ ] Make an array with the widget use to send data
+      - [ ] Make slot for widget to update data to send
+
 - [ ] Motor/PID
   - [x] Use customPID
   - [ ] Set reference

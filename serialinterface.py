@@ -13,7 +13,7 @@ class SerialInterface(QtWidgets.QWidget):
         super(SerialInterface, self).__init__()
         self.init_config()
         self.init_ui()
-        # self.init_serial()
+        self.init_serial()
 
     def init_config(self):
         # Load configuration file
@@ -46,7 +46,8 @@ class SerialInterface(QtWidgets.QWidget):
     def init_ui(self):
         uic.loadUi('serialinterface.ui', self)
 
-        plot_layout = QtWidgets.QVBoxLayout(self.plot_widget)
+        
+        plot_layout = QtWidgets.QVBoxLayout(self.findChild(QtWidgets.QWidget, 'plot_widget'))
         plot_layout.addWidget(self.easyplot)
         plot_layout.setContentsMargins(0, 0, 0, 0)
 

@@ -10,7 +10,7 @@
   - [x] Print data with binserial
   - [x] Display data in a plot
   - [x] Fix quality and distance inversion in the label
-  - [ ] Change plot to polar coordinates
+  - [x] Change plot to polar coordinates
 - [ ] Motor/PID
   - [x] Use customPID
   - [ ] Set reference

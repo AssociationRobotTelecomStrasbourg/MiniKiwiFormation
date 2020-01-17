@@ -19,22 +19,19 @@
     - [ ] Write any type of data with Qt widgets
       - [ ] Make an array with the widget use to send data
       - [ ] Make slot for widget to update data to send
-
-- [ ] Motor/PID
+- [ ] WS2812 to display obstacle
+  - [ ] [Non-Blocking WS2812 LED Library - PJRC](https://www.pjrc.com/non-blocking-ws2812-led-library/)
+- [ ] Arduino code
   - [x] Use customPID
-  - [ ] Set reference
-  - [ ] Set kp, ki, kd
-  - [ ] Set min, max pwm
-  - [ ] Set sample time
-- [ ] Handle data error
-- [ ] Set which angle to ignore
-- [ ] Initialize the variable in lidar.cpp
-- [ ] Develop algorithm for data manipulation
-  - [ ] Idea from [LidarObstacleDetection](https://github.com/enginBozkurt/LidarObstacleDetection)
-    - Filtering
-    - Segmentation
-    - Clustering
-    - Bound Box
+  - [ ] Handle data error
+  - [ ] Clean code
+  - [ ] Add method to configure lidar
+  - [ ] Develop algorithm for data manipulation
+    - [ ] Idea from [LidarObstacleDetection](https://github.com/enginBozkurt/LidarObstacleDetection)
+      - Filtering
+      - Segmentation
+      - Clustering
+      - Bound Box
 
 ### Data format
 

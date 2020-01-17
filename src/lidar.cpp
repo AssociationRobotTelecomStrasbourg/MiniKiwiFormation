@@ -1,7 +1,21 @@
 #include "lidar.h"
 
 // initialization
-Lidar::Lidar() : rpmPID(xv_config.Kp, xv_config.Ki, xv_config.Kd) {
+Lidar::Lidar() : rpmPID(xv_config.Kp, xv_config.Ki, xv_config.Kd), aryDist{}, aryQuality{0} {
+  pwm_val = 127;
+  motor_check_timer = millis();
+  motor_check_interval = 200;
+  rpm_err_thresh = 10;  // 2 seconds (10 * 200ms) to shutdown motor with improper RPM and high voltage
+  rpm_err = 0;
+  
+  inByte = 0;  // incoming serial byte
+  motor_rph_high_byte = 0;
+  motor_rph_low_byte = 0;
+  motor_rph = 0;
+  startingAngle = 0;
+
+
+
   initConfig();
   pinMode(xv_config.motor_pwm_pin, OUTPUT);
   Serial.begin(115200);                    // USB serial
@@ -56,15 +70,6 @@ void Lidar::run() {
           }
           for (int ix = 0; ix < N_DATA_QUADS; ix++) {
             if (xv_config.aryAngles[startingAngle + ix]) {             // if we're supposed to display that angle
-              if (aryInvalidDataFlag[ix] & BAD_DATA_MASK) {  // if LIDAR reported a data error...
-                if (aryInvalidDataFlag[ix] & INVALID_DATA_FLAG);
-                  //Handle invalid data
-                if (aryInvalidDataFlag[ix] & STRENGTH_WARNING_FLAG);
-                  // Handle weak data
-              }
-              else {                                         // show clean data
-                // Handle clean data
-              }
               scan_data.angle = startingAngle + ix;
               scan_data.distance = aryDist[ix];
               scan_data.quality = aryQuality[ix];
@@ -302,28 +307,4 @@ void Lidar::motorCheck() {  // Make sure the motor RPMs are good else shut it do
     }
     motor_check_timer = millis();
   }
-}
-
-void Lidar::setRPM() {
-  // xv_config.rpm_setpoint = ;
-}
-
-void Lidar::setKp() {
-  /* xv_config.Kp = sVal;
-  rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd); */
-}
-
-void Lidar::setKi() {
-  /* xv_config.Ki = sVal;
-  rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd); */
-}
-
-void Lidar::setKd() {
-  /* xv_config.Kd = sVal;
-  rpmPID.SetTunings(xv_config.Kp, xv_config.Ki, xv_config.Kd); */
-}
-
-void Lidar::setSampleTime() {
-  /* xv_config.sample_time = sVal;
-  rpmPID.SetSampleTime(xv_config.sample_time); */
 }

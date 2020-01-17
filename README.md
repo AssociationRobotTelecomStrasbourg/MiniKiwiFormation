@@ -23,8 +23,8 @@
   - [ ] [Non-Blocking WS2812 LED Library - PJRC](https://www.pjrc.com/non-blocking-ws2812-led-library/)
 - [ ] Arduino code
   - [x] Use customPID
-  - [ ] Handle data error
-  - [ ] Clean code
+  - [x] Handle data error
+  - [x] Clean code
   - [ ] Add method to configure lidar
   - [ ] Develop algorithm for data manipulation
     - [ ] Idea from [LidarObstacleDetection](https://github.com/enginBozkurt/LidarObstacleDetection)

@@ -1,4 +1,4 @@
-#include "lidar.h"
+#include "xv_lidar.h"
 
 Lidar lidar;
 

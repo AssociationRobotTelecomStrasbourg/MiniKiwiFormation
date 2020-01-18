@@ -4,3 +4,6 @@
 [submodule "lib/XV-Lidar"]
 	path = lib/XV-Lidar
 	url = https://github.com/JonathanPlasse/XV-Lidar.git
+[submodule "lib/BinSerial"]
+	path = lib/BinSerial
+	url = https://github.com/AssociationRobotTelecomStrasbourg/BinSerial.git

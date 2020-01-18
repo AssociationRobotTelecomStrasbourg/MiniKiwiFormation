@@ -1,3 +1,6 @@
 [submodule "lib/CustomPID"]
 	path = lib/CustomPID
 	url = https://github.com/AssociationRobotTelecomStrasbourg/CustomPID.git
+[submodule "lib/XV-Lidar"]
+	path = lib/XV-Lidar
+	url = https://github.com/JonathanPlasse/XV-Lidar.git

@@ -15,6 +15,7 @@
     - [ ] Read and plot any type of data
       - [x] Choose number of points per plot lines
       - [x] Choose between polar or xy plot
+      - [ ] Option to receive array of data
       - [ ] Option to give x data or not
     - [ ] Write any type of data with Qt widgets
       - [ ] Make an array with the widget use to send data
